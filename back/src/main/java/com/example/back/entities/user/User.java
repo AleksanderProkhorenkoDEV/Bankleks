@@ -7,12 +7,13 @@ import jakarta.persistence.Id;
 @Entity
 public class User {
 
-    @Id
-    @GeneratedValue()
+    @Id @GeneratedValue()
     private Long id;
-    private String name;
     private String email;
+    private String name;
     private String password;
+
+    public User(){}
 
     public User( String name, String email, String password) {
         this.name = name;
