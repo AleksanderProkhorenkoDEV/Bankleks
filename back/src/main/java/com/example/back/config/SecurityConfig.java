@@ -12,6 +12,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.example.back.services.UserDetailsServiceImpl;
+
 @Configuration
 public class SecurityConfig {
     private final JwtAuthFilter jwtFilter;
@@ -34,9 +36,8 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(this.userDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
-        provider.setUserDetailsService(userDetailsService);
         return provider;
     }
 
