@@ -27,7 +27,8 @@ public class AuthController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public AuthController(AuthenticationManager authenticationManager, JwtService jwtService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthController(AuthenticationManager authenticationManager, JwtService jwtService,
+            UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.userRepository = userRepository;
@@ -37,16 +38,21 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
         UserDetails user = authenticate(request);
+
         String token = jwtService.generateToken(user.getUsername());
         return ResponseEntity.ok(new LoginResponseDTO(token, user.getUsername()));
     }
 
     private UserDetails authenticate(LoginRequestDTO request) {
+
         Authentication auth = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-        if (!(auth.getPrincipal() instanceof UserDetails user))
+
+        if (!(auth.getPrincipal() instanceof UserDetails user)) {
             throw new IllegalStateException("Unexpected type");
+        }
         return user;
+
     }
 
     @PostMapping("/register")
@@ -56,15 +62,15 @@ public class AuthController {
             return ResponseEntity
                     .badRequest()
                     .body("El email ya está registrado");
-        }      
+        }
 
         userRepository.save(createUser(request));
 
         return ResponseEntity.ok("Usuario registrado correctamente");
     }
 
-    private User createUser(RegisterRequestDTO request){
-        return new User(request.getEmail(), request.getName(), passwordEncoder.encode(request.getPassword()));
+    private User createUser(RegisterRequestDTO request) {
+        return new User(request.getName(), request.getEmail(), passwordEncoder.encode(request.getPassword()));
     }
 
 }
