@@ -1,13 +1,10 @@
 package com.example.back.controllers;
 
-import java.util.Map;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,6 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.back.dto.auth.LoginRequestDTO;
 import com.example.back.dto.auth.LoginResponseDTO;
+import com.example.back.dto.auth.LogoutRequestDTO;
+import com.example.back.dto.auth.LogoutResponseDTO;
+import com.example.back.dto.auth.RefreshRequestDTO;
+import com.example.back.dto.auth.RefreshResponseDTO;
 import com.example.back.dto.auth.RegisterRequestDTO;
 import com.example.back.entities.auth.RefreshToken;
 import com.example.back.entities.user.User;
@@ -90,30 +91,30 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@RequestBody Map<String, String> body) {
-        String requestToken = body.get("refreshToken");
+    public ResponseEntity<RefreshResponseDTO> refresh(@RequestBody RefreshRequestDTO request) {
+        String requestToken = request.getRefreshToken();
 
         return refreshTokenRepository.findByToken(requestToken)
                 .map(token -> {
                     if (refreshTokenService.isExpired(token)) {
                         refreshTokenRepository.delete(token);
-                        return ResponseEntity.badRequest().body("Refresh token expirado, vuelve a hacer login.");
+                        return ResponseEntity.badRequest().body(new RefreshResponseDTO("Refresh token expirado, vuelve a hacer login."));
                     }
                     String newAccessToken = jwtService.generateToken(token.getUser().getEmail());
-                    return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
+                    return ResponseEntity.ok(new RefreshResponseDTO("Token actualizado", newAccessToken));
                 })
-                .orElse(ResponseEntity.badRequest().body("Refresh token inválido."));
+                .orElse(ResponseEntity.badRequest().body(new RefreshResponseDTO("Refresh token inválido.")));
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestBody Map<String, String> body) {
-        String requestToken = body.get("refreshToken");
+    public ResponseEntity<LogoutResponseDTO> logout(@RequestBody LogoutRequestDTO request) {
+        String requestToken = request.getRefreshToken();
 
         return refreshTokenRepository.findByToken(requestToken)
                 .map(token -> {
                     refreshTokenRepository.delete(token);
-                    return ResponseEntity.ok("Logout correcto.");
+                    return ResponseEntity.ok(new LogoutResponseDTO("Sesión cerrada"));
                 })
-                .orElse(ResponseEntity.badRequest().body("Refresh token inválido."));
+                .orElse(ResponseEntity.badRequest().body(new LogoutResponseDTO("Refresh token inválido.")));
     }
 }
