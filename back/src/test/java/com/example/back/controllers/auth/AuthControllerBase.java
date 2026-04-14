@@ -7,6 +7,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.example.back.entities.user.User;
 import com.example.back.repositories.RefreshTokenRepository;
 import com.example.back.repositories.UserRepository;
 import com.example.back.services.JwtService;
@@ -35,4 +36,8 @@ abstract class AuthControllerBase {
 
     @MockitoBean
     protected RefreshTokenRepository refreshTokenRepository;
+
+    @MockitoBean
+    User user;
+
 }
