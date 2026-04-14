@@ -109,7 +109,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<LogoutResponseDTO> logout(@RequestBody LogoutRequestDTO request) {
+    public ResponseEntity<LogoutResponseDTO> logout(@Valid @RequestBody LogoutRequestDTO request) {
         String requestToken = request.getRefreshToken();
 
         return refreshTokenRepository.findByToken(requestToken)
