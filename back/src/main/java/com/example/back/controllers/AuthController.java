@@ -25,6 +25,8 @@ import com.example.back.repositories.UserRepository;
 import com.example.back.services.JwtService;
 import com.example.back.services.RefreshTokenService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -48,7 +50,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
         UserDetails user = authenticate(request);
 
         String token = jwtService.generateToken(user.getUsername());
