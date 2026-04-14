@@ -3,26 +3,23 @@ package com.example.back.controllers;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.Matchers.is;
 
 import org.junit.jupiter.api.Test;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.context.annotation.Bean;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.example.back.config.JwtAuthFilter;
 import com.example.back.dto.auth.LoginRequestDTO;
 import com.example.back.entities.auth.RefreshToken;
 import com.example.back.repositories.RefreshTokenRepository;
@@ -31,31 +28,20 @@ import com.example.back.services.JwtService;
 import com.example.back.services.RefreshTokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@WebMvcTest(value = AuthController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 class AuthControllerTest {
-
-    @TestConfiguration
-    static class TestConfig {
-        @Bean
-        public ObjectMapper objectMapper() {
-            return new ObjectMapper();
-        }
-    }
 
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @MockitoBean
     private AuthenticationManager authenticationManager;
 
     @MockitoBean
     private JwtService jwtService;
-
-    @MockitoBean
-    private JwtAuthFilter jwtAuthFilter;
 
     @MockitoBean
     private RefreshTokenService refreshTokenService;
@@ -65,9 +51,6 @@ class AuthControllerTest {
 
     @MockitoBean
     private RefreshTokenRepository refreshTokenRepository;
-
-    @MockitoBean
-    private PasswordEncoder passwordEncoder;
 
     @Test
     void shouldReturnTokenWhenCredentialsAreCorrect() throws Exception {
@@ -91,6 +74,34 @@ class AuthControllerTest {
         mockMvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk());
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token", is("jwt-falso")))
+                .andExpect(jsonPath("$.refreshToken", is("refresh-token-123")))
+                .andExpect(jsonPath("$.email", is("usuario@gmail.com")));
+    }
+
+    @Test
+    void shouldReturn400WhenFieldsAreInvalid() throws Exception {
+        LoginRequestDTO request = new LoginRequestDTO("no-es-un-email", "");
+
+        mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn401WhenCredentialsAreWrong() throws Exception {
+        LoginRequestDTO request = new LoginRequestDTO("usuario@gmail.com", "contraseña-incorrecta");
+
+        when(authenticationManager.authenticate(any()))
+                .thenThrow(new org.springframework.security.authentication.BadCredentialsException(
+                        "Credenciales incorrectas"));
+
+        mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized());
     }
 }
