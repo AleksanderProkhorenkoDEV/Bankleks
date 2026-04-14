@@ -93,7 +93,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<RefreshResponseDTO> refresh(@RequestBody RefreshRequestDTO request) {
+    public ResponseEntity<RefreshResponseDTO> refresh(@Valid @RequestBody RefreshRequestDTO request) {
         String requestToken = request.getRefreshToken();
 
         return refreshTokenRepository.findByToken(requestToken)
