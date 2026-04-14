@@ -4,6 +4,9 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import lombok.Data;
+
+@Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ErrorResponseDTO {
 
@@ -25,25 +28,4 @@ public class ErrorResponseDTO {
     public Map<String, String> getErrors() {
         return errors;
     }
-
-    public void setErrors(Map<String, String> errors) {
-        this.errors = errors;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
 }

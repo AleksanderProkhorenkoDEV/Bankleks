@@ -1,5 +1,10 @@
 package com.example.back.dto.auth;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class LoginResponseDTO {
     private String token;
     private String refreshToken;
@@ -10,30 +15,4 @@ public class LoginResponseDTO {
         this.refreshToken = refreshToken;
         this.email = email;
     }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public String getRefreshToken() {
-        return refreshToken;
-    }
-
-    public void setRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    
-}
+  }
