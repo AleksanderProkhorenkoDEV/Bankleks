@@ -25,6 +25,8 @@ import com.example.back.repositories.UserRepository;
 import com.example.back.services.JwtService;
 import com.example.back.services.RefreshTokenService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -48,7 +50,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
         UserDetails user = authenticate(request);
 
         String token = jwtService.generateToken(user.getUsername());
@@ -73,7 +75,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterRequestDTO request) {
+    public ResponseEntity<String> register(@Valid @RequestBody RegisterRequestDTO request) {
 
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             return ResponseEntity
@@ -91,7 +93,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<RefreshResponseDTO> refresh(@RequestBody RefreshRequestDTO request) {
+    public ResponseEntity<RefreshResponseDTO> refresh(@Valid @RequestBody RefreshRequestDTO request) {
         String requestToken = request.getRefreshToken();
 
         return refreshTokenRepository.findByToken(requestToken)
@@ -107,7 +109,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<LogoutResponseDTO> logout(@RequestBody LogoutRequestDTO request) {
+    public ResponseEntity<LogoutResponseDTO> logout(@Valid @RequestBody LogoutRequestDTO request) {
         String requestToken = request.getRefreshToken();
 
         return refreshTokenRepository.findByToken(requestToken)
