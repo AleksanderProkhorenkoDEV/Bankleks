@@ -55,8 +55,12 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token, String expectedSubject) {
-        String subject = extractSubject(token);
-        return subject.equals(expectedSubject) && !isTokenExpired(token);
+        try {
+            String subject = extractSubject(token);
+            return subject.equals(expectedSubject) && !isTokenExpired(token);
+        } catch (io.jsonwebtoken.JwtException e) {
+            return false;
+        }
     }
 
     private boolean isTokenExpired(String token) {
