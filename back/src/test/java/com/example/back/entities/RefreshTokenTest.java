@@ -6,15 +6,20 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.time.Instant;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import com.example.back.entities.auth.RefreshToken;
+import com.example.back.entities.auth.Role;
 import com.example.back.entities.user.User;
 
-public class RefreshTokenTest {
+class RefreshTokenTest {
+
+    @Mock
+    private Role role;
 
     @Test
     void shouldCreateRefreshTokenWhenAllArgumentsAreValid() {
-        User user = new User("nombre", "email@test.com", "pwd");
+        User user = new User("nombre", "email@test.com", "pwd", role);
         Instant expiry = Instant.now().plusSeconds(60);
 
         RefreshToken token = new RefreshToken(user, "refresh-token", expiry);
@@ -26,7 +31,7 @@ public class RefreshTokenTest {
 
     @Test
     void shouldThrowExceptionWhenExpiryDateIsNull() {
-        User user = new User("nombre", "email@test.com", "pwd");
+        User user = new User("nombre", "email@test.com", "pwd", role);
 
         IllegalArgumentException ex = assertThrows(
                 IllegalArgumentException.class,
@@ -37,14 +42,14 @@ public class RefreshTokenTest {
 
     @Test
     void shouldThrowExceptionWhenTokenIsNull() {
-        User user = new User("nombre", "email@test.com", "pwd");
+        User user = new User("nombre", "email@test.com", "pwd", role);
 
         assertThrows(IllegalArgumentException.class, () -> new RefreshToken(user, null, Instant.now()));
     }
 
     @Test
     void shouldThrowExceptionWhenTokenIsBlank() {
-        User user = new User("nombre", "email@test.com", "pwd");
+        User user = new User("nombre", "email@test.com", "pwd", role);
 
         assertThrows(IllegalArgumentException.class, () -> new RefreshToken(user, "", Instant.now()));
     }

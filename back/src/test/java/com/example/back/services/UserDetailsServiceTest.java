@@ -17,11 +17,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import com.example.back.entities.auth.Role;
 import com.example.back.entities.user.User;
 import com.example.back.repositories.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
 class UserDetailsServiceTest {
+
+    @Mock
+    private Role role;
 
     @Mock
     private UserRepository userRepository;
@@ -31,7 +35,7 @@ class UserDetailsServiceTest {
 
     @Test
     void shouldReturnUserDetailsWhenUserExists() {
-        User user = new User("usuario", "usuario@gmail.com", "encoded-password");
+        User user = new User("usuario", "usuario@gmail.com", "encoded-password", role);
 
         when(userRepository.findByEmail("usuario@gmail.com"))
                 .thenReturn(Optional.of(user));
