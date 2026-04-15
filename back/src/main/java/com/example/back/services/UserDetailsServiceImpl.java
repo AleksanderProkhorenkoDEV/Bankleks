@@ -10,21 +10,21 @@ import com.example.back.repositories.UserRepository;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
-    private final UserRepository reposuserRepository;
+    private final UserRepository userRepository;
 
     public UserDetailsServiceImpl(UserRepository repo) {
-        this.reposuserRepository = repo;
+        this.userRepository = repo;
     }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = reposuserRepository.findByEmail(email)
+        User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail()) // email como “username”
                 .password(user.getPassword()) // password encriptada
-                .roles("USER") // por ahora asignamos ROLE_USER
+                .roles(user.getRole().getName()) 
                 .build();
 
     }
