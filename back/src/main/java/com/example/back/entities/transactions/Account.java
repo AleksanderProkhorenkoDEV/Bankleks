@@ -26,4 +26,19 @@ public class Account {
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
+
+    public Account() {
+    }
+
+    public Account(Long id, Double balance, User user) {
+
+        if(id == null) throw new IllegalArgumentException("El id no puede ser nulo");
+        if(balance == null) throw new IllegalArgumentException("El balance no puede ser nulo");
+        if(user == null) throw new IllegalArgumentException("El user no puede ser nulo");
+
+        this.id = id;
+        this.balance = balance;
+        this.user = user;
+    }
+
 }
