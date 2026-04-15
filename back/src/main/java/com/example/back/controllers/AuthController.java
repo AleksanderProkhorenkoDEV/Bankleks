@@ -19,8 +19,10 @@ import com.example.back.dto.auth.RefreshRequestDTO;
 import com.example.back.dto.auth.RefreshResponseDTO;
 import com.example.back.dto.auth.RegisterRequestDTO;
 import com.example.back.entities.auth.RefreshToken;
+import com.example.back.entities.auth.Role;
 import com.example.back.entities.user.User;
 import com.example.back.repositories.RefreshTokenRepository;
+import com.example.back.repositories.RoleRepository;
 import com.example.back.repositories.UserRepository;
 import com.example.back.services.JwtService;
 import com.example.back.services.RefreshTokenService;
@@ -37,16 +39,18 @@ public class AuthController {
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenService refreshTokenService;
+    private final RoleRepository roleRepository;
 
     public AuthController(AuthenticationManager authenticationManager, JwtService jwtService,
             UserRepository userRepository, PasswordEncoder passwordEncoder, RefreshTokenService refreshTokenService,
-            RefreshTokenRepository refreshTokenRepository) {
+            RefreshTokenRepository refreshTokenRepository, RoleRepository roleRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.refreshTokenService = refreshTokenService;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.roleRepository = roleRepository;
     }
 
     @PostMapping("/login")
@@ -89,7 +93,10 @@ public class AuthController {
     }
 
     private User createUser(RegisterRequestDTO request) {
-        return new User(request.getName(), request.getEmail(), passwordEncoder.encode(request.getPassword()));
+        Role role = roleRepository.findByName("CLIENT")
+            .orElseThrow(() -> new RuntimeException("Role not found"));
+
+        return new User(request.getName(), request.getEmail(), passwordEncoder.encode(request.getPassword()), role);
     }
 
     @PostMapping("/refresh")
@@ -100,7 +107,8 @@ public class AuthController {
                 .map(token -> {
                     if (refreshTokenService.isExpired(token)) {
                         refreshTokenRepository.delete(token);
-                        return ResponseEntity.badRequest().body(new RefreshResponseDTO("Refresh token expirado, vuelve a hacer login."));
+                        return ResponseEntity.badRequest()
+                                .body(new RefreshResponseDTO("Refresh token expirado, vuelve a hacer login."));
                     }
                     String newAccessToken = jwtService.generateToken(token.getUser().getEmail());
                     return ResponseEntity.ok(new RefreshResponseDTO("Token actualizado", newAccessToken));
