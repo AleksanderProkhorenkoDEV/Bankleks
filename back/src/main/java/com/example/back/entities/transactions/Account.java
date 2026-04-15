@@ -23,6 +23,9 @@ public class Account {
     @Column(nullable = false)
     private Double balance;
 
+    @Column(nullable = false)
+    private String accountNumer;
+
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
@@ -30,15 +33,15 @@ public class Account {
     public Account() {
     }
 
-    public Account(Long id, Double balance, User user) {
+    public Account(Double balance, User user, String accountNumber) {
 
-        if(id == null) throw new IllegalArgumentException("El id no puede ser nulo");
         if(balance == null) throw new IllegalArgumentException("El balance no puede ser nulo");
         if(user == null) throw new IllegalArgumentException("El user no puede ser nulo");
+        if(accountNumber == null) throw new IllegalArgumentException("El número no puede ser nulo");
 
-        this.id = id;
         this.balance = balance;
         this.user = user;
+        this.accountNumer = accountNumber;
     }
 
 }
