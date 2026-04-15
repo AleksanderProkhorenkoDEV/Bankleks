@@ -10,11 +10,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Setter
-@Getter
+@Data
 @Entity
 public class RefreshToken {
 
@@ -31,4 +29,24 @@ public class RefreshToken {
 
     @Column(nullable = false)
     private Instant expiryDate;
+
+    public RefreshToken() {
+    }
+
+    public RefreshToken(User user, String token, Instant expiryDate) {
+
+        if (user == null)
+            throw new IllegalArgumentException("El usuario no puede ser nulo");
+        if (token == null || token.isBlank())
+            throw new IllegalArgumentException("El token no puede ser nulo ni estar vacio");
+        if (expiryDate == null)
+            throw new IllegalArgumentException("La fecha de expiración no puede ser nula.");
+
+
+
+        this.user = user;
+        this.token = token;
+        this.expiryDate = expiryDate;
+    }
+
 }
