@@ -23,12 +23,16 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.example.back.entities.auth.RefreshToken;
+import com.example.back.entities.auth.Role;
 import com.example.back.entities.user.User;
 import com.example.back.repositories.RefreshTokenRepository;
 import com.example.back.repositories.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
 class RefreshTokenServiceTest {
+
+    @Mock
+    private Role role;
 
     @Mock
     private RefreshTokenRepository refreshTokenRepository;
@@ -47,7 +51,7 @@ class RefreshTokenServiceTest {
     @Test
     void shouldReturnRefreshTokenIfUserExist() {
 
-        User user = new User("usuario", "usuario@gmail.com", "123456789");
+        User user = new User("usuario", "usuario@gmail.com", "123456789", role);
 
         when(userRepository.findByEmail(user.getEmail()))
                 .thenReturn(Optional.of(user));
@@ -71,7 +75,7 @@ class RefreshTokenServiceTest {
 
     @Test
     void shouldReturnExceptionIfUserDoesExist() {
-        User user = new User("usuario", "usuario@gmail.com", "123456789");
+        User user = new User("usuario", "usuario@gmail.com", "123456789", role);
 
         when(userRepository.findByEmail(user.getEmail()))
                 .thenReturn(Optional.empty());
