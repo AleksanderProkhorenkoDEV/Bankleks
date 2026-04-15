@@ -28,15 +28,16 @@ public class RefreshTokenService {
     }
 
     public RefreshToken createRefreshToken(String email) {
-        userRepository.findByEmail(email).ifPresent(refreshTokenRepository::deleteByUser);
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        RefreshToken refreshToken = new RefreshToken();
-        refreshToken.setUser(user);
-        refreshToken.setToken(UUID.randomUUID().toString());
-        refreshToken.setExpiryDate(Instant.now().plusMillis(refreshExpirationMs));
+        refreshTokenRepository.deleteByUser(user);
+
+        RefreshToken refreshToken = new RefreshToken(
+                user,
+                UUID.randomUUID().toString(),
+                Instant.now().plusMillis(refreshExpirationMs));
 
         return refreshTokenRepository.save(refreshToken);
     }
