@@ -1,7 +1,5 @@
 package com.example.back.dto.transaction.transaction;
 
-import java.sql.Date;
-
 import com.example.back.enums.TransactionType;
 
 import jakarta.validation.constraints.NotEmpty;
