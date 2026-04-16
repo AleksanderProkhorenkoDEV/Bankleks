@@ -1,15 +1,17 @@
 package com.example.back.services;
 
+import java.time.LocalDate;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.back.dto.transaction.transaction.CreateTransactionRequestDTO;
+import com.example.back.entities.transactions.Account;
 import com.example.back.entities.transactions.Transaction;
 import com.example.back.entities.user.User;
 import com.example.back.repositories.TransactionRepository;
-import com.example.back.repositories.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -17,11 +19,14 @@ import jakarta.persistence.EntityNotFoundException;
 public class TransactionServices {
 
     private TransactionRepository transactionRepository;
-    private UserRepository userRepository;
+    private AccountService accountService;
+    private UserService userService;
 
-    public TransactionServices(TransactionRepository transactionRepository, UserRepository userRepository) {
+    public TransactionServices(TransactionRepository transactionRepository, AccountService accountService,
+            UserService userService) {
         this.transactionRepository = transactionRepository;
-        this.userRepository = userRepository;
+        this.accountService = accountService;
+        this.userService = userService;
     }
 
     public Page<Transaction> getAllTransaction(Long id, Integer page, Integer sizePerPage) {
@@ -33,12 +38,18 @@ public class TransactionServices {
         return transactionRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
-    // public Transaction createTransaction(CreateTransactionRequestDTO request){
-    //     User user = getUser(request.getUserId());
-    //     return transactionRepository.save(new Transaction());
-    // }
-
-    // private User getUser(Long id){
-    //     return userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
-    // }
+    public Transaction createTransaction(CreateTransactionRequestDTO request) {
+        User user = userService.getUser(request.getUserId());
+        Account destinatiAccount = accountService.getAccount(request.getDestinationAccountId());
+        Account originAccount = accountService.getAccount(request.getOriginAccountId());
+        return transactionRepository.save(
+                new Transaction(
+                        request.getConcept(),
+                        request.getAmount(),
+                        LocalDate.now(),
+                        request.getTransactionType(),
+                        user,
+                        destinatiAccount,
+                        originAccount));
+    }
 }
