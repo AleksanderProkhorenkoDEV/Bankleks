@@ -1,6 +1,5 @@
 package com.example.back.entities.transactions;
 
-import java.sql.Date;
 import java.time.LocalDate;
 
 import com.example.back.entities.user.User;
