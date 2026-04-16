@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 import com.example.back.dto.transaction.account.AccountSummaryDTO;
 import com.example.back.dto.transaction.transaction.TransactionResponseDTO;
 import com.example.back.dto.user.UserSummaryDTO;
-import com.example.back.entities.transaction.Transaction;
 import com.example.back.entities.transactions.Account;
+import com.example.back.entities.transactions.Transaction;
 import com.example.back.entities.user.User;
 
 @Component
