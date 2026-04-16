@@ -6,13 +6,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.back.dto.PageResponseDTO;
 import com.example.back.dto.mappers.TransactionMapper;
+import com.example.back.dto.transaction.transaction.CreateTransactionRequestDTO;
 import com.example.back.dto.transaction.transaction.TransactionResponseDTO;
 import com.example.back.services.TransactionServices;
+
+import jakarta.validation.Valid;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
 @RequestMapping("/transaction")
@@ -37,5 +43,12 @@ public class TransactionController {
 
         return ResponseEntity.ok(new PageResponseDTO<>(dtoPage));
     }
+
+    @PostMapping("/create")
+    public ResponseEntity<String> postMethodName(@Valid @RequestBody CreateTransactionRequestDTO request) {
+    
+        return ResponseEntity.ok("Transacción creada");
+    }
+    
 
 }
