@@ -24,7 +24,7 @@ public class Account {
     private Double balance;
 
     @Column(nullable = false)
-    private String accountNumer;
+    private String accountNumber;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
@@ -41,7 +41,7 @@ public class Account {
 
         this.balance = balance;
         this.user = user;
-        this.accountNumer = accountNumber;
+        this.accountNumber = accountNumber;
     }
 
 }
