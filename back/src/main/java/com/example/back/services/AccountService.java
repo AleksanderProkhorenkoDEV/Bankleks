@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.example.back.dto.transaction.account.CreateAccountRequestDTO;
+import com.example.back.entities.transaction.Transaction;
 import com.example.back.entities.transactions.Account;
 import com.example.back.entities.user.User;
 import com.example.back.repositories.AccountRepository;
@@ -37,5 +38,5 @@ public class AccountService {
         return userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
-    public List<Transactions> getAllTransactions () {}
+    // public List<Transaction> getAllTransactions() {}
 }
