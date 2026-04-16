@@ -27,6 +27,7 @@ import com.example.back.repositories.UserRepository;
 import com.example.back.services.JwtService;
 import com.example.back.services.RefreshTokenService;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 
 @RestController
@@ -94,7 +95,7 @@ public class AuthController {
 
     private User createUser(RegisterRequestDTO request) {
         Role role = roleRepository.findByName("CLIENT")
-            .orElseThrow(() -> new RuntimeException("Role not found"));
+            .orElseThrow(EntityNotFoundException::new);
 
         return new User(request.getName(), request.getEmail(), passwordEncoder.encode(request.getPassword()), role);
     }

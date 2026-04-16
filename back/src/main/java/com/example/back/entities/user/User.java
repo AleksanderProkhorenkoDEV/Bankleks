@@ -37,6 +37,12 @@ public class User {
     }
 
     public User(String name, String email, String password, Role rol) {
+
+        if(name == null) throw new IllegalArgumentException("El nombre no puede ser nulo");
+        if(email == null) throw new IllegalArgumentException("El email no puede ser nulo");
+        if(password == null) throw new IllegalArgumentException("El password no puede ser nulo");
+        if(rol == null) throw new IllegalArgumentException("El rol no puede ser nulo");
+
         this.name = name;
         this.email = email;
         this.password = password;
