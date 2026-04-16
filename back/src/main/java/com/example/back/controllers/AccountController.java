@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PostMapping;
 
+
 @RestController
 @RequestMapping("/accounts")
 public class AccountController {
@@ -27,7 +28,7 @@ public class AccountController {
         this.accountService = accountService;
     }
 
-    @GetMapping("/get-balance/{id}")
+    @GetMapping("/{id}/balance")
     public ResponseEntity<GetBalanceResponseDTO> getBalanceAccount(@PathVariable Long id) {
         Account account = this.accountService.getAccount(id);
         return ResponseEntity.ok(new GetBalanceResponseDTO(account.getBalance()));
@@ -38,5 +39,11 @@ public class AccountController {
         accountService.createAccount(request);
         return ResponseEntity.ok(new CreateAccountResponseDTO("cuenta creada correctamente"));
     }
+
+    @GetMapping("/{id}/transactions")
+    public ResponseEntity<?> getAllTransaction(@PathVariable Long id) {
+        return ResponseEntity.ok(null);
+    }
+    
 
 }
