@@ -1,5 +1,7 @@
 package com.example.back.services;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.example.back.dto.transaction.account.CreateAccountRequestDTO;
@@ -35,4 +37,5 @@ public class AccountService {
         return userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
+    public List<Transactions> getAllTransactions () {}
 }
