@@ -39,14 +39,30 @@ public class Transaction {
     private TransactionType type;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="user_id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="account_destination_id")
+    @JoinColumn(name = "account_destination_id")
     private Account accountDestination;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="account_origin_id")
+    @JoinColumn(name = "account_origin_id")
     private Account accountOrigin;
+
+    public Transaction() {
+    }
+
+    public Transaction(String concept, Double amount, Date transactionDay, TransactionType type, User user,
+            Account accountDestination, Account accountOrigin) {
+
+        this.concept = concept;
+        this.amount = amount;
+        this.transactionDay = transactionDay;
+        this.type = type;
+        this.user = user;
+        this.accountDestination = accountDestination;
+        this.accountOrigin = accountOrigin;
+    }
+
 }
