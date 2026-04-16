@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.example.back.dto.transaction.transaction.CreateTransactionRequestDTO;
 import com.example.back.entities.transaction.Transaction;
 import com.example.back.entities.user.User;
 import com.example.back.repositories.TransactionRepository;
@@ -32,12 +33,12 @@ public class TransactionServices {
         return transactionRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
-    public Transaction createTransaction(CreateTransactionDTO request){
-        User user = getUser(request.getId());
-        return transactionRepository.save(new Transaction());
-    }
+    // public Transaction createTransaction(CreateTransactionRequestDTO request){
+    //     User user = getUser(request.getUserId());
+    //     return transactionRepository.save(new Transaction());
+    // }
 
-    private User getUser(Long id){
-        return userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
-    }
+    // private User getUser(Long id){
+    //     return userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+    // }
 }
