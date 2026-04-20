@@ -42,11 +42,11 @@ public class Transaction {
     private User user;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "account_destination_id")
+    @JoinColumn(name = "account_destination_id", nullable = true)
     private Account accountDestination;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "account_origin_id")
+    @JoinColumn(name = "account_origin_id", nullable = true)
     private Account accountOrigin;
 
     public Transaction() {
