@@ -14,6 +14,7 @@ import com.example.back.entities.user.User;
 import com.example.back.repositories.TransactionRepository;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 
 @Service
 public class TransactionServices {
@@ -38,6 +39,7 @@ public class TransactionServices {
         return transactionRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
+    @Transactional
     public Transaction createTransaction(CreateTransactionRequestDTO request) {
         User user = userService.getUser(request.getUserId());
         Account destinatiAccount = accountService.getAccount(request.getDestinationAccountId());
