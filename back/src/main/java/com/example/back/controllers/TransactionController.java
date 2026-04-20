@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
 @RestController
 @RequestMapping("/transaction")
 public class TransactionController {
@@ -32,7 +31,7 @@ public class TransactionController {
         this.transactionServices = transactionServices;
     }
 
-    @GetMapping("/{id}/transactions")
+    @GetMapping("/{id}")
     public ResponseEntity<PageResponseDTO<TransactionResponseDTO>> getTransactionByUserId(
             @PathVariable Long id,
             @RequestParam(defaultValue = "0") Integer page,
@@ -43,12 +42,11 @@ public class TransactionController {
 
         return ResponseEntity.ok(new PageResponseDTO<>(dtoPage));
     }
-
+    
     @PostMapping("/create")
     public ResponseEntity<String> postMethodName(@Valid @RequestBody CreateTransactionRequestDTO request) {
-    
+        transactionServices.createTransaction(request);
         return ResponseEntity.ok("Transacción creada");
     }
-    
 
 }
