@@ -40,9 +40,4 @@ public class AccountController {
         return ResponseEntity.ok(new GlobalResponseDTO("Cuenta creada correctamente", HttpStatus.OK.value()));
     }
 
-    @GetMapping("/{id}/transactions")
-    public ResponseEntity<?> getAllTransaction(@PathVariable Long id) {
-        return ResponseEntity.ok(null);
-    }
-
 }
