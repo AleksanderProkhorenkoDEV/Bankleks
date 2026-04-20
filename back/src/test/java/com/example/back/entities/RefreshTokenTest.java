@@ -5,8 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Instant;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import com.example.back.entities.auth.RefreshToken;
 import com.example.back.entities.auth.Role;
@@ -16,6 +18,11 @@ class RefreshTokenTest {
 
     @Mock
     private Role role;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this); 
+    }
 
     @Test
     void shouldCreateRefreshTokenWhenAllArgumentsAreValid() {

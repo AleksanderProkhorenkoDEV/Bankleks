@@ -11,7 +11,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +25,6 @@ import com.example.back.entities.auth.RefreshToken;
 import com.example.back.entities.auth.Role;
 import com.example.back.entities.user.User;
 import com.example.back.repositories.RefreshTokenRepository;
-import com.example.back.repositories.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
 class RefreshTokenServiceTest {
@@ -38,7 +36,7 @@ class RefreshTokenServiceTest {
     private RefreshTokenRepository refreshTokenRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
 
     @InjectMocks
     private RefreshTokenService refreshTokenService;
@@ -53,8 +51,7 @@ class RefreshTokenServiceTest {
 
         User user = new User("usuario", "usuario@gmail.com", "123456789", role);
 
-        when(userRepository.findByEmail(user.getEmail()))
-                .thenReturn(Optional.of(user));
+        when(userService.getUser(user.getEmail())).thenReturn(user);
 
         when(refreshTokenRepository.save(any(RefreshToken.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -67,7 +64,7 @@ class RefreshTokenServiceTest {
         assertFalse(refreshToken.getToken().isBlank());
         assertTrue(refreshToken.getExpiryDate().isAfter(Instant.now()));
 
-        verify(userRepository).findByEmail(user.getEmail());
+        verify(userService).getUser(user.getEmail());
         verify(refreshTokenRepository).deleteByUser(user);
         verify(refreshTokenRepository).save(any(RefreshToken.class));
 
@@ -77,8 +74,8 @@ class RefreshTokenServiceTest {
     void shouldReturnExceptionIfUserDoesExist() {
         User user = new User("usuario", "usuario@gmail.com", "123456789", role);
 
-        when(userRepository.findByEmail(user.getEmail()))
-                .thenReturn(Optional.empty());
+        when(userService.getUser(user.getEmail()))
+                .thenThrow(new UsernameNotFoundException("Usuario no encontrado"));
 
         assertThrows(UsernameNotFoundException.class,
                 () -> refreshTokenService.createRefreshToken(user.getEmail()));
