@@ -29,7 +29,7 @@ public class CreateTransactionRequestDTO {
     @PositiveOrZero
     private Long userId;
 
-    @NotNull(message = "{validation.notNullt}")
+    @NotNull(message = "{validation.notNull}")
     private TransactionType transactionType;
 
     public CreateTransactionRequestDTO() {
