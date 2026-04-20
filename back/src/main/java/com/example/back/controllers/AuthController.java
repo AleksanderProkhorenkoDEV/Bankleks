@@ -1,5 +1,6 @@
 package com.example.back.controllers;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -11,10 +12,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.back.dto.GlobalResponseDTO;
 import com.example.back.dto.auth.LoginRequestDTO;
 import com.example.back.dto.auth.LoginResponseDTO;
 import com.example.back.dto.auth.LogoutRequestDTO;
-import com.example.back.dto.auth.LogoutResponseDTO;
 import com.example.back.dto.auth.RefreshRequestDTO;
 import com.example.back.dto.auth.RefreshResponseDTO;
 import com.example.back.dto.auth.RegisterRequestDTO;
@@ -80,22 +81,22 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@Valid @RequestBody RegisterRequestDTO request) {
+    public ResponseEntity<GlobalResponseDTO> register(@Valid @RequestBody RegisterRequestDTO request) {
 
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             return ResponseEntity
                     .badRequest()
-                    .body("El email ya está registrado");
+                    .body(new GlobalResponseDTO("El email ya esta en uso", HttpStatus.BAD_REQUEST.value()));
         }
 
         userRepository.save(createUser(request));
 
-        return ResponseEntity.ok("Usuario registrado correctamente");
+        return ResponseEntity.ok(new GlobalResponseDTO("Usuario creado correctamente", HttpStatus.OK.value()));
     }
 
     private User createUser(RegisterRequestDTO request) {
         Role role = roleRepository.findByName("CLIENT")
-            .orElseThrow(EntityNotFoundException::new);
+                .orElseThrow(EntityNotFoundException::new);
 
         return new User(request.getName(), request.getEmail(), passwordEncoder.encode(request.getPassword()), role);
     }
@@ -118,14 +119,15 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<LogoutResponseDTO> logout(@Valid @RequestBody LogoutRequestDTO request) {
+    public ResponseEntity<GlobalResponseDTO> logout(@Valid @RequestBody LogoutRequestDTO request) {
         String requestToken = request.getRefreshToken();
 
         return refreshTokenRepository.findByToken(requestToken)
                 .map(token -> {
                     refreshTokenRepository.delete(token);
-                    return ResponseEntity.ok(new LogoutResponseDTO("Sesión cerrada"));
+                    return ResponseEntity.ok(new GlobalResponseDTO("Sesión cerrada", HttpStatus.OK.value()));
                 })
-                .orElse(ResponseEntity.badRequest().body(new LogoutResponseDTO("Refresh token inválido.")));
+                .orElse(ResponseEntity.badRequest()
+                        .body(new GlobalResponseDTO("Refresh token inválido.", HttpStatus.BAD_REQUEST.value())));
     }
 }
