@@ -1,7 +1,5 @@
 package com.example.back.services;
 
-import java.util.List;
-
 import org.springframework.stereotype.Service;
 
 import com.example.back.dto.transaction.account.CreateAccountRequestDTO;
@@ -11,6 +9,7 @@ import com.example.back.repositories.AccountRepository;
 import com.example.back.repositories.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 
 @Service
 public class AccountService {
@@ -27,6 +26,7 @@ public class AccountService {
         return accountRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
+    @Transactional
     public Account createAccount(CreateAccountRequestDTO request) {
         User user = getUser(request.getUserId());
         Account account = new Account(request.getBalance(), user, request.getAccountNumber());
@@ -37,5 +37,18 @@ public class AccountService {
         return userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
-    public List<Transactions> getAllTransactions () {}
+    public void addBalance(Account account, Double amount) {
+        account.setBalance(account.getBalance() + amount);
+        accountRepository.save(account);
+    }
+
+    public void subtractBalance(Account account, Double amount) {
+        if (account.getBalance() < amount) {
+            throw new RuntimeException("No dispone de fondos suficientes");
+        }
+        account.setBalance(account.getBalance() - amount);
+        accountRepository.save(account);
+    }
+
+    // public List<Transaction> getAllTransactions() {}
 }
