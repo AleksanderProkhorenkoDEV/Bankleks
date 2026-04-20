@@ -8,9 +8,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.back.dto.transaction.transaction.CreateTransactionRequestDTO;
+import com.example.back.dto.transaction.transaction.UpdateConceptRequestDTO;
 import com.example.back.entities.transactions.Account;
 import com.example.back.entities.transactions.Transaction;
 import com.example.back.entities.user.User;
+import com.example.back.enums.TransactionType;
 import com.example.back.repositories.TransactionRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -40,18 +42,53 @@ public class TransactionServices {
     }
 
     @Transactional
-    public Transaction createTransaction(CreateTransactionRequestDTO request) {
+    public void createTransaction(CreateTransactionRequestDTO request) {
         User user = userService.getUser(request.getUserId());
-        Account destinatiAccount = accountService.getAccount(request.getDestinationAccountId());
-        Account originAccount = accountService.getAccount(request.getOriginAccountId());
-        return transactionRepository.save(
-                new Transaction(
-                        request.getConcept(),
-                        request.getAmount(),
-                        LocalDate.now(),
-                        request.getTransactionType(),
-                        user,
-                        destinatiAccount,
-                        originAccount));
+        Account destinationAccount = request.getDestinationAccountId() != null
+                ? accountService.getAccount(request.getDestinationAccountId())
+                : null;
+        Account originAccount = request.getOriginAccountId() != null
+                ? accountService.getAccount(request.getOriginAccountId())
+                : null;
+
+        switch (request.getTransactionType()) {
+            case DEPOSIT -> depositTransaction(request, user, destinationAccount);
+            case WITHDRAWAL -> withdrawalTransaction(request, user, originAccount);
+            case TRANSFER -> transferTransaction(request, user, destinationAccount, originAccount);
+        }
+    }
+
+    private void depositTransaction(CreateTransactionRequestDTO request, User user, Account destination) {
+        accountService.addBalance(destination, request.getAmount());
+
+        transactionRepository.save(new Transaction(
+                request.getConcept(), request.getAmount(), LocalDate.now(),
+                TransactionType.DEPOSIT, user, destination, null));
+    }
+
+    private void withdrawalTransaction(CreateTransactionRequestDTO request, User user, Account origin) {
+        accountService.subtractBalance(origin, request.getAmount());
+
+        transactionRepository.save(new Transaction(
+                request.getConcept(), request.getAmount(), LocalDate.now(),
+                TransactionType.WITHDRAWAL, user, null, origin));
+    }
+
+    private void transferTransaction(CreateTransactionRequestDTO request, User user, Account destination,
+            Account origin) {
+        accountService.subtractBalance(origin, request.getAmount());
+        accountService.addBalance(destination, request.getAmount());
+
+        transactionRepository.save(new Transaction(
+                request.getConcept(), request.getAmount(), LocalDate.now(),
+                TransactionType.TRANSFER, user, destination, origin));
+    }
+
+    @Transactional
+    public void updateConcept(UpdateConceptRequestDTO request) {
+        Transaction transaction = transactionRepository.findById(request.getTransactionId())
+                .orElseThrow(EntityNotFoundException::new);
+
+        transaction.setConcept(request.getConcept());
     }
 }
