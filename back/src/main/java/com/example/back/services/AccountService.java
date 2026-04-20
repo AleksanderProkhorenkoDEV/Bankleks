@@ -1,6 +1,5 @@
 package com.example.back.services;
 
-
 import org.springframework.stereotype.Service;
 
 import com.example.back.dto.transaction.account.CreateAccountRequestDTO;
@@ -36,6 +35,19 @@ public class AccountService {
 
     private User getUser(Long id) {
         return userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+    }
+
+    public void addBalance(Account account, Double amount) {
+        account.setBalance(account.getBalance() + amount);
+        accountRepository.save(account);
+    }
+
+    public void subtractBalance(Account account, Double amount) {
+        if (account.getBalance() < amount) {
+            throw new RuntimeException("No dispone de fondos suficientes");
+        }
+        account.setBalance(account.getBalance() - amount);
+        accountRepository.save(account);
     }
 
     // public List<Transaction> getAllTransactions() {}
