@@ -6,9 +6,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.example.back.entities.transactions.Transaction;
+import java.util.Optional;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
     Page<Transaction> findAllByUserId(Long userId, Pageable pageable);
+
+    Optional<Transaction> findById(Long id);
 }
