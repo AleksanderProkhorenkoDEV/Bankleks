@@ -17,6 +17,7 @@ public class TransactionMapper {
 
         dto.setId(transaction.getId());
         dto.setAmount(transaction.getAmount());
+        dto.setConcept(transaction.getConcept());
         dto.setTransactionType(transaction.getType());
         dto.setTransactionDate(transaction.getTransactionDay());
         dto.setOriginAccount(toAccountSummary(transaction.getAccountOrigin()));
@@ -27,6 +28,8 @@ public class TransactionMapper {
     }
 
     private AccountSummaryDTO toAccountSummary(Account account) {
+        if (account == null)
+            return null;
         AccountSummaryDTO dto = new AccountSummaryDTO();
         dto.setId(account.getId());
         dto.setAccountNumber(account.getAccountNumber());

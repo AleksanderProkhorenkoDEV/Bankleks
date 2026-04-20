@@ -13,6 +13,7 @@ public class TransactionResponseDTO {
 
     private Long id;
     private Double amount;
+    private String concept;
     private TransactionType transactionType;
     private LocalDate transactionDate;
     private AccountSummaryDTO originAccount;
