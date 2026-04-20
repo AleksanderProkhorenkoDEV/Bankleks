@@ -5,13 +5,11 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.example.back.entities.auth.RefreshToken;
 import com.example.back.entities.user.User;
 import com.example.back.repositories.RefreshTokenRepository;
-import com.example.back.repositories.UserRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -22,18 +20,17 @@ public class RefreshTokenService {
     private Long refreshExpirationMs;
 
     private final RefreshTokenRepository refreshTokenRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    public RefreshTokenService(RefreshTokenRepository refreshTokenRepo, UserRepository userRepo) {
+    public RefreshTokenService(RefreshTokenRepository refreshTokenRepo, UserService userService) {
         this.refreshTokenRepository = refreshTokenRepo;
-        this.userRepository = userRepo;
+        this.userService = userService;
     }
 
     @Transactional
     public RefreshToken createRefreshToken(String email) {
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userService.getUser(email);
 
         refreshTokenRepository.deleteByUser(user);
 
