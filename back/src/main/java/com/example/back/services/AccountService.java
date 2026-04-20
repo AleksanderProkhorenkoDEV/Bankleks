@@ -6,7 +6,6 @@ import com.example.back.dto.transaction.account.CreateAccountRequestDTO;
 import com.example.back.entities.transactions.Account;
 import com.example.back.entities.user.User;
 import com.example.back.repositories.AccountRepository;
-import com.example.back.repositories.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -15,11 +14,12 @@ import jakarta.transaction.Transactional;
 public class AccountService {
 
     private AccountRepository accountRepository;
-    private UserRepository userRepository;
+    private UserService userService;
 
-    public AccountService(AccountRepository accountRepository, UserRepository userRepository) {
+    public AccountService(AccountRepository accountRepository, UserService userService) {
         this.accountRepository = accountRepository;
-        this.userRepository = userRepository;
+        this.userService = userService;
+
     }
 
     public Account getAccount(Long id) {
@@ -28,14 +28,11 @@ public class AccountService {
 
     @Transactional
     public Account createAccount(CreateAccountRequestDTO request) {
-        User user = getUser(request.getUserId());
+        User user = userService.getUser(request.getUserId());
         Account account = new Account(request.getBalance(), user, request.getAccountNumber());
         return accountRepository.save(account);
     }
 
-    private User getUser(Long id) {
-        return userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
-    }
 
     public void addBalance(Account account, Double amount) {
         account.setBalance(account.getBalance() + amount);
