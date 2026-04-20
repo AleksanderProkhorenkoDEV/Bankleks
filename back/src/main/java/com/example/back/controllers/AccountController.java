@@ -34,7 +34,7 @@ public class AccountController {
         return ResponseEntity.ok(new GetBalanceResponseDTO(account.getBalance()));
     }
 
-    @PostMapping("/create-account")
+    @PostMapping("/create")
     public ResponseEntity<CreateAccountResponseDTO> createAccount(@Valid @RequestBody CreateAccountRequestDTO request) {
         accountService.createAccount(request);
         return ResponseEntity.ok(new CreateAccountResponseDTO("cuenta creada correctamente"));

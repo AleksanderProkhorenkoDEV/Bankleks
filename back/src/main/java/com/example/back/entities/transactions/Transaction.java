@@ -1,8 +1,7 @@
-package com.example.back.entities.transaction;
+package com.example.back.entities.transactions;
 
-import java.sql.Date;
+import java.time.LocalDate;
 
-import com.example.back.entities.transactions.Account;
 import com.example.back.entities.user.User;
 import com.example.back.enums.TransactionType;
 
@@ -33,7 +32,7 @@ public class Transaction {
     private Double amount;
 
     @Column(nullable = false)
-    private Date transactionDay;
+    private LocalDate transactionDay;
 
     @Enumerated(EnumType.STRING)
     private TransactionType type;
@@ -43,17 +42,17 @@ public class Transaction {
     private User user;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "account_destination_id")
+    @JoinColumn(name = "account_destination_id", nullable = true)
     private Account accountDestination;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "account_origin_id")
+    @JoinColumn(name = "account_origin_id", nullable = true)
     private Account accountOrigin;
 
     public Transaction() {
     }
 
-    public Transaction(String concept, Double amount, Date transactionDay, TransactionType type, User user,
+    public Transaction(String concept, Double amount, LocalDate transactionDay, TransactionType type, User user,
             Account accountDestination, Account accountOrigin) {
 
         this.concept = concept;

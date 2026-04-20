@@ -1,7 +1,5 @@
 package com.example.back.dto.transaction.transaction;
 
-import java.sql.Date;
-
 import com.example.back.enums.TransactionType;
 
 import jakarta.validation.constraints.NotEmpty;
@@ -19,11 +17,9 @@ public class CreateTransactionRequestDTO {
     @PositiveOrZero
     private Double amount;
 
-    @NotNull(message = "{validation.notNull}")
     @PositiveOrZero
     private Long destinationAccountId;
 
-    @NotNull(message = "{validation.notNull}")
     @PositiveOrZero
     private Long originAccountId;
 
@@ -31,7 +27,7 @@ public class CreateTransactionRequestDTO {
     @PositiveOrZero
     private Long userId;
 
-    @NotNull(message = "{validation.notNullt}")
+    @NotNull(message = "{validation.notNull}")
     private TransactionType transactionType;
 
     public CreateTransactionRequestDTO() {

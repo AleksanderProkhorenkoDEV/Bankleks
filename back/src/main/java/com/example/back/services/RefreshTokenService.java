@@ -13,6 +13,8 @@ import com.example.back.entities.user.User;
 import com.example.back.repositories.RefreshTokenRepository;
 import com.example.back.repositories.UserRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class RefreshTokenService {
 
@@ -27,6 +29,7 @@ public class RefreshTokenService {
         this.userRepository = userRepo;
     }
 
+    @Transactional
     public RefreshToken createRefreshToken(String email) {
 
         User user = userRepository.findByEmail(email)
