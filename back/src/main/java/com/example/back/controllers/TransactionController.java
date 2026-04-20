@@ -8,6 +8,7 @@ import com.example.back.dto.PageResponseDTO;
 import com.example.back.dto.mappers.TransactionMapper;
 import com.example.back.dto.transaction.transaction.CreateTransactionRequestDTO;
 import com.example.back.dto.transaction.transaction.TransactionResponseDTO;
+import com.example.back.dto.transaction.transaction.UpdateConceptRequestDTO;
 import com.example.back.services.TransactionServices;
 
 import jakarta.validation.Valid;
@@ -15,6 +16,7 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,18 +37,24 @@ public class TransactionController {
     public ResponseEntity<PageResponseDTO<TransactionResponseDTO>> getTransactionByUserId(
             @PathVariable Long id,
             @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer size) {
+            @RequestParam(defaultValue = "25") Integer size) {
 
         Page<TransactionResponseDTO> dtoPage = transactionServices.getAllTransaction(id, page, size)
                 .map(transactionMapper::toDto);
 
         return ResponseEntity.ok(new PageResponseDTO<>(dtoPage));
     }
-    
+
     @PostMapping("/create")
-    public ResponseEntity<String> postMethodName(@Valid @RequestBody CreateTransactionRequestDTO request) {
+    public ResponseEntity<String> createTransaction(@Valid @RequestBody CreateTransactionRequestDTO request) {
         transactionServices.createTransaction(request);
         return ResponseEntity.ok("Transacción creada");
+    }
+
+    @PatchMapping("/update")
+    public ResponseEntity<String> updateConceptTransaction(@Valid @RequestBody UpdateConceptRequestDTO request) {
+        transactionServices.updateConcept(request);
+        return ResponseEntity.ok("Concepto actualizado");
     }
 
 }
