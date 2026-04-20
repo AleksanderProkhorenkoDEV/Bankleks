@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.back.dto.GlobalResponseDTO;
 import com.example.back.dto.PageResponseDTO;
 import com.example.back.dto.mappers.TransactionMapper;
 import com.example.back.dto.transaction.transaction.CreateTransactionRequestDTO;
@@ -14,6 +15,7 @@ import com.example.back.services.TransactionServices;
 import jakarta.validation.Valid;
 
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -46,15 +48,16 @@ public class TransactionController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<String> createTransaction(@Valid @RequestBody CreateTransactionRequestDTO request) {
+    public ResponseEntity<GlobalResponseDTO> createTransaction(@Valid @RequestBody CreateTransactionRequestDTO request) {
         transactionServices.createTransaction(request);
-        return ResponseEntity.ok("Transacción creada");
+        return ResponseEntity.ok(new GlobalResponseDTO("Transacción creada", HttpStatus.CREATED.value()));
     }
 
     @PatchMapping("/update")
-    public ResponseEntity<String> updateConceptTransaction(@Valid @RequestBody UpdateConceptRequestDTO request) {
+    public ResponseEntity<GlobalResponseDTO> updateConceptTransaction(
+            @Valid @RequestBody UpdateConceptRequestDTO request) {
         transactionServices.updateConcept(request);
-        return ResponseEntity.ok("Concepto actualizado");
+        return ResponseEntity.ok(new GlobalResponseDTO("Transacción actualizada", HttpStatus.NO_CONTENT.value()));
     }
 
 }
