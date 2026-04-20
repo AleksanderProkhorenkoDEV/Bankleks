@@ -17,11 +17,9 @@ public class CreateTransactionRequestDTO {
     @PositiveOrZero
     private Double amount;
 
-    @NotNull(message = "{validation.notNull}")
     @PositiveOrZero
     private Long destinationAccountId;
 
-    @NotNull(message = "{validation.notNull}")
     @PositiveOrZero
     private Long originAccountId;
 
