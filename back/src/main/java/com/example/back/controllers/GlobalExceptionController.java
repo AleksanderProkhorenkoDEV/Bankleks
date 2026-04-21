@@ -43,4 +43,10 @@ public class GlobalExceptionController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                 .body(new ErrorResponseDTO("Entidad no encontrada", HttpStatus.NOT_FOUND.value()));
         }
+
+        @ExceptionHandler(IllegalArgumentException.class)
+        public ResponseEntity<ErrorResponseDTO> handleIllegalArgumentError(IllegalArgumentException ex) {
+                return ResponseEntity.badRequest()
+                                .body(new ErrorResponseDTO(ex.getMessage(), HttpStatus.BAD_REQUEST.value()));
+        }
 }
