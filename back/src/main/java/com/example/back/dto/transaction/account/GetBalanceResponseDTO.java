@@ -7,9 +7,6 @@ public class GetBalanceResponseDTO {
 
     private Double amount;
 
-    public GetBalanceResponseDTO() {
-    }
-
     public GetBalanceResponseDTO(Double amount) {
         this.amount = amount;
     }

@@ -47,5 +47,4 @@ public class AccountService {
         accountRepository.save(account);
     }
 
-    // public List<Transaction> getAllTransactions() {}
 }
