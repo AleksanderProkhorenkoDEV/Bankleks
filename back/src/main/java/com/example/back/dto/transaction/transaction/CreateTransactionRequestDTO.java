@@ -30,9 +30,6 @@ public class CreateTransactionRequestDTO {
     @NotNull(message = "{validation.notNull}")
     private TransactionType transactionType;
 
-    public CreateTransactionRequestDTO() {
-    }
-
     public CreateTransactionRequestDTO(@NotEmpty(message = "{validation.notEmpty}") String concept,
             @NotNull(message = "${validation.notNull}") @PositiveOrZero Double amount,
             @NotNull(message = "{validation.notNull}") @PositiveOrZero Long destinationAccountId,

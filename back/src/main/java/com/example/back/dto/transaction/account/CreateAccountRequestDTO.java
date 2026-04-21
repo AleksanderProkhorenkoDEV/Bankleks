@@ -20,9 +20,6 @@ public class CreateAccountRequestDTO {
     @PositiveOrZero
     private Double balance;
 
-    public CreateAccountRequestDTO() {
-    }
-
     public CreateAccountRequestDTO(
             @NotEmpty(message = "${validation.notEmpty}") @Size(min = 21, max = 22) String accountNumber,
             @NotNull(message = "${validation.notNull}") Long userId,

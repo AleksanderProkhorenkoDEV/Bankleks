@@ -59,6 +59,9 @@ public class TransactionServices {
     }
 
     private void depositTransaction(CreateTransactionRequestDTO request, User user, Account destination) {
+        if (destination == null)
+            throw new IllegalArgumentException("La cuenta destino, no puede ser nula.");
+
         accountService.addBalance(destination, request.getAmount());
 
         transactionRepository.save(new Transaction(
@@ -67,6 +70,9 @@ public class TransactionServices {
     }
 
     private void withdrawalTransaction(CreateTransactionRequestDTO request, User user, Account origin) {
+        if (origin == null)
+            throw new IllegalArgumentException("La cuenta destino, no puede ser nula.");
+
         accountService.subtractBalance(origin, request.getAmount());
 
         transactionRepository.save(new Transaction(
@@ -76,6 +82,9 @@ public class TransactionServices {
 
     private void transferTransaction(CreateTransactionRequestDTO request, User user, Account destination,
             Account origin) {
+
+        if (origin == null | destination == null)
+            throw new IllegalArgumentException("La cuenta destino u origene, no pueden ser nulas.");
         accountService.subtractBalance(origin, request.getAmount());
         accountService.addBalance(destination, request.getAmount());
 

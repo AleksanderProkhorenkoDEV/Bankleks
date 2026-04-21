@@ -7,8 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Optional;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,7 +17,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import com.example.back.entities.auth.Role;
 import com.example.back.entities.user.User;
-import com.example.back.repositories.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
 class UserDetailsServiceTest {
@@ -28,17 +25,19 @@ class UserDetailsServiceTest {
     private Role role;
 
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
 
     @InjectMocks
     private UserDetailsServiceImpl userDetailsService;
 
     @Test
     void shouldReturnUserDetailsWhenUserExists() {
+
+        when(role.getName()).thenReturn("USER");
+
         User user = new User("usuario", "usuario@gmail.com", "encoded-password", role);
 
-        when(userRepository.findByEmail("usuario@gmail.com"))
-                .thenReturn(Optional.of(user));
+        when(userService.getUser(user.getEmail())).thenReturn(user);
 
         UserDetails userDetails = userDetailsService.loadUserByUsername("usuario@gmail.com");
 
@@ -49,17 +48,17 @@ class UserDetailsServiceTest {
                 userDetails.getAuthorities().stream()
                         .anyMatch(a -> a.getAuthority().equals("ROLE_USER")));
 
-        verify(userRepository).findByEmail("usuario@gmail.com");
+        verify(userService).getUser("usuario@gmail.com");
     }
 
     @Test
     void shouldThrowExceptionWhenUserDoesNotExist() {
-        when(userRepository.findByEmail("missing@gmail.com"))
-                .thenReturn(Optional.empty());
+
+        when(userService.getUser("missing@gmail.com")).thenThrow(new UsernameNotFoundException("Usuario no encontrado"));
 
         assertThrows(UsernameNotFoundException.class, () -> userDetailsService.loadUserByUsername("missing@gmail.com"));
 
-        verify(userRepository).findByEmail("missing@gmail.com");
+        verify(userService).getUser("missing@gmail.com");
     }
 
 }
