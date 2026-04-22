@@ -30,7 +30,7 @@ class JwtServiceTest {
 
     @Test
     void shouldGenerateValidJwtToken() {
-        String token = jwtService.generateToken("user@test.com");
+        String token = jwtService.generateToken("user@test.com", "CLIENT");
 
         assertNotNull(token);
         assertFalse(token.isBlank());
@@ -38,7 +38,7 @@ class JwtServiceTest {
 
     @Test
     void shouldExtractSubjectFromToken() {
-        String token = jwtService.generateToken("user@test.com");
+        String token = jwtService.generateToken("user@test.com", "CLIENT");
 
         String subject = jwtService.extractSubject(token);
 
@@ -47,7 +47,7 @@ class JwtServiceTest {
 
     @Test
     void shouldReturnTrueForValidTokenAndCorrectSubject() {
-        String token = jwtService.generateToken("user@test.com");
+        String token = jwtService.generateToken("user@test.com", "CLIENT");
 
         boolean valid = jwtService.isTokenValid(token, "user@test.com");
 
@@ -56,7 +56,7 @@ class JwtServiceTest {
 
     @Test
     void shouldReturnFalseWhenSubjectDoesNotMatch() {
-        String token = jwtService.generateToken("user@test.com");
+        String token = jwtService.generateToken("user@test.com", "CLIENT");
 
         boolean valid = jwtService.isTokenValid(token, "other@test.com");
 

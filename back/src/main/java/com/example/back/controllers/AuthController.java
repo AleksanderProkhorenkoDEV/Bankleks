@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -59,7 +60,9 @@ public class AuthController {
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
         UserDetails user = authenticate(request);
 
-        String token = jwtService.generateToken(user.getUsername());
+        String role = user.getAuthorities().stream().findFirst().map(GrantedAuthority::getAuthority).orElse("ROLE_USER");
+
+        String token = jwtService.generateToken(user.getUsername(), role);
         RefreshToken refreshToken = this.refreshTokenService.createRefreshToken(user.getUsername());
 
         return ResponseEntity.ok(new LoginResponseDTO(
@@ -112,7 +115,7 @@ public class AuthController {
                         return ResponseEntity.badRequest()
                                 .body(new RefreshResponseDTO("Refresh token expirado, vuelve a hacer login."));
                     }
-                    String newAccessToken = jwtService.generateToken(token.getUser().getEmail());
+                    String newAccessToken = jwtService.generateToken(token.getUser().getEmail(), token.getUser().getRole().getName());
                     return ResponseEntity.ok(new RefreshResponseDTO("Token actualizado", newAccessToken));
                 })
                 .orElse(ResponseEntity.badRequest().body(new RefreshResponseDTO("Refresh token inválido.")));
