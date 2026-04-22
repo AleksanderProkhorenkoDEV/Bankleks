@@ -11,95 +11,104 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
 import com.example.back.dto.auth.RefreshRequestDTO;
 import com.example.back.entities.auth.RefreshToken;
+import com.example.back.entities.auth.Role;
 import com.example.back.entities.user.User;
 
 class AuthControllerRefreshTest extends AuthControllerBase {
 
-    @Test
-    void shouldReturn200WhenRefreshTokenIsValid() throws Exception {
-        RefreshRequestDTO request = new RefreshRequestDTO("refresh-token-valid");
+        protected Role role;
 
-        User user = new User();
-        user.setEmail("usuario@gmail.com");
+        @BeforeEach
+        void setUp() {
+                role.setName("CLIENT");
+        }
 
-        RefreshToken token = new RefreshToken();
-        token.setToken("refresh-token-valid");
-        token.setUser(user);
+        @Test
+        void shouldReturn200WhenRefreshTokenIsValid() throws Exception {
+                RefreshRequestDTO request = new RefreshRequestDTO("refresh-token-valid");
 
-        when(refreshTokenRepository.findByToken("refresh-token-valid"))
-                .thenReturn(Optional.of(token));
+                User user = new User();
+                user.setEmail("usuario@gmail.com");
 
-        when(refreshTokenService.isExpired(token))
-                .thenReturn(false);
+                RefreshToken token = new RefreshToken();
+                token.setToken("refresh-token-valid");
+                token.setUser(user);
 
-        when(jwtService.generateToken("usuario@gmail.com"))
-                .thenReturn("new-jwt-token");
+                when(refreshTokenRepository.findByToken("refresh-token-valid"))
+                                .thenReturn(Optional.of(token));
 
-        mockMvc.perform(post("/auth/refresh")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message")
-                        .value("Token actualizado"))
-                .andExpect(jsonPath("$.newAccessToken")
-                        .value("new-jwt-token"));
+                when(refreshTokenService.isExpired(token))
+                                .thenReturn(false);
 
-    }
+                when(jwtService.generateToken("usuario@gmail.com", role.getName()))
+                                .thenReturn("new-jwt-token");
 
-    @Test
-    void shouldReturn400WhenRefreshTokenIsExpired() throws Exception {
-        RefreshRequestDTO request = new RefreshRequestDTO("refresh-token-expired");
+                mockMvc.perform(post("/auth/refresh")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.message")
+                                                .value("Token actualizado"))
+                                .andExpect(jsonPath("$.newAccessToken")
+                                                .value("new-jwt-token"));
 
-        User user = new User();
-        user.setEmail("usuario@gmail.com");
+        }
 
-        RefreshToken token = new RefreshToken();
-        token.setToken("refresh-token-expired");
-        token.setUser(user);
+        @Test
+        void shouldReturn400WhenRefreshTokenIsExpired() throws Exception {
+                RefreshRequestDTO request = new RefreshRequestDTO("refresh-token-expired");
 
-        when(refreshTokenRepository.findByToken("refresh-token-expired"))
-                .thenReturn(Optional.of(token));
+                User user = new User();
+                user.setEmail("usuario@gmail.com");
 
-        when(refreshTokenService.isExpired(token))
-                .thenReturn(true);
+                RefreshToken token = new RefreshToken();
+                token.setToken("refresh-token-expired");
+                token.setUser(user);
 
-        mockMvc.perform(post("/auth/refresh")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message")
-                        .value("Refresh token expirado, vuelve a hacer login."));
+                when(refreshTokenRepository.findByToken("refresh-token-expired"))
+                                .thenReturn(Optional.of(token));
 
-        verify(refreshTokenRepository).delete(token);
+                when(refreshTokenService.isExpired(token))
+                                .thenReturn(true);
 
-        verify(jwtService, never())
-                .generateToken(anyString());
-    }
+                mockMvc.perform(post("/auth/refresh")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(jsonPath("$.message")
+                                                .value("Refresh token expirado, vuelve a hacer login."));
 
-    @Test
-    void shouldReturn400WhenRefreshTokenIsInvalid() throws Exception {
-        RefreshRequestDTO request = new RefreshRequestDTO("refresh-token-invalid");
+                verify(refreshTokenRepository).delete(token);
 
-        when(refreshTokenRepository.findByToken("refresh-token-invalid"))
-                .thenReturn(Optional.empty());
+                verify(jwtService, never())
+                                .generateToken(anyString(), role.getName());
+        }
 
-        mockMvc.perform(post("/auth/refresh")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message")
-                        .value("Refresh token inválido."));
+        @Test
+        void shouldReturn400WhenRefreshTokenIsInvalid() throws Exception {
+                RefreshRequestDTO request = new RefreshRequestDTO("refresh-token-invalid");
 
-        verify(refreshTokenRepository, never())
-                .delete(any());
+                when(refreshTokenRepository.findByToken("refresh-token-invalid"))
+                                .thenReturn(Optional.empty());
 
-        verify(jwtService, never())
-                .generateToken(anyString());
-    }
+                mockMvc.perform(post("/auth/refresh")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(jsonPath("$.message")
+                                                .value("Refresh token inválido."));
+
+                verify(refreshTokenRepository, never())
+                                .delete(any());
+
+                verify(jwtService, never())
+                                .generateToken(anyString(), role.getName());
+        }
 
 }
