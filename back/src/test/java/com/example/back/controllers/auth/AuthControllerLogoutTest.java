@@ -8,56 +8,45 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.http.MediaType;
 
-import com.example.back.dto.auth.LogoutRequestDTO;
 import com.example.back.entities.auth.RefreshToken;
 
+import jakarta.servlet.http.Cookie;
+
 class AuthControllerLogoutTest extends AuthControllerBase {
+        @Test
+        void shouldReturn400WhenRefreshTokenIsInvalid() throws Exception {
 
-    @Test
-    void shouldReturn400WhenRefreshTokenIsInvalid() throws Exception {
+                when(refreshTokenRepository.findByToken("refresh-token-fake"))
+                                .thenReturn(Optional.empty());
 
-        LogoutRequestDTO request = new LogoutRequestDTO("refresh-token-fake");
+                mockMvc.perform(post("/auth/logout")
+                                .cookie(new Cookie("refreshToken", "refresh-token-fake")))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(jsonPath("$.message")
+                                                .value("Refresh token inválido."));
+        }
 
-        when(refreshTokenRepository.findByToken(request.getRefreshToken()))
-                .thenReturn(Optional.empty());
+        @Test
+        void shouldReturn400WhenCookieIsMissing() throws Exception {
 
-        mockMvc.perform(post("/auth/logout")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message")
-                        .value("Refresh token inválido."));
+                mockMvc.perform(post("/auth/logout"))
+                                .andExpect(status().isBadRequest());
+        }
 
-    }
+        @Test
+        void shouldReturn200WhenRefreshTokenIsValid() throws Exception {
 
-    @Test
-    void shouldReturn400WhenFieldAreInvalid() throws Exception {
-        LogoutRequestDTO request = new LogoutRequestDTO("");
+                RefreshToken token = new RefreshToken();
+                token.setToken("refresh-token-valid");
 
-        mockMvc.perform(post("/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
-    }
+                when(refreshTokenRepository.findByToken("refresh-token-valid"))
+                                .thenReturn(Optional.of(token));
 
-    @Test
-    void shouldReturn200WhenRefreshTokenIsValid() throws Exception {
-        LogoutRequestDTO request = new LogoutRequestDTO("refresh-token-fake");
-
-        RefreshToken token = new RefreshToken();
-        token.setToken("refresh-token-valid");
-
-        when(refreshTokenRepository.findByToken(request.getRefreshToken()))
-                .thenReturn(Optional.of(token));
-
-        mockMvc.perform(post("/auth/logout")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message")
-                        .value("Sesión cerrada"));
-
-    }
+                mockMvc.perform(post("/auth/logout")
+                                .cookie(new Cookie("refreshToken", "refresh-token-valid")))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.message")
+                                                .value("Sesión cerrada"));
+        }
 }
