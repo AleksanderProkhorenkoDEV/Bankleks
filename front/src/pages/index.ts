@@ -1,0 +1,5 @@
+export { TransactionPage } from "./transactions.ts"
+export { MovementsPage } from "./movements.ts"
+export { RegisterPage } from "./register.ts"
+export { ResumePage } from "./resume.ts"
+export { SignInPage } from "./signIn.ts"
