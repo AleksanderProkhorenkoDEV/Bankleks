@@ -3,8 +3,7 @@ import { css } from "lit";
 export const navbarStyles = css`
     :host{
         display:block;
-        border:1px solid red;
-
+        
         width: 100svw;
         height: 10svh;
 
