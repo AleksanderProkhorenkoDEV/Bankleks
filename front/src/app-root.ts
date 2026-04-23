@@ -1,6 +1,7 @@
 import { customElement, property } from 'lit/decorators.js'
-import { LitElement, html } from 'lit'
 import { authRoutes, navBarRoutes } from './router/router'
+import { LitElement, html } from 'lit'
+import { appStyles } from './app.styles.css';
 
 
 
@@ -25,6 +26,10 @@ export class AppRoot extends LitElement {
     history.pushState({}, '', route)
     this._activeRoute = route
   }
+
+  static styles? = [
+    appStyles,
+  ]
 
   render() {
     const allRoutes = [...navBarRoutes, ...authRoutes]
