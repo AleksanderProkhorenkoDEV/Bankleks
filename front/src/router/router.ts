@@ -1,7 +1,7 @@
 import { html } from "lit";
 import type { Router } from "../types";
 
-const navBarRoutes: Router[] = [
+export const navBarRoutes: Router[] = [
     {
         href: "/resumen",
         title: "Resumen",
@@ -32,7 +32,7 @@ const navBarRoutes: Router[] = [
     }
 ]
 
-const authRoutes: Router[] = [
+export const authRoutes: Router[] = [
     {
         href: "/signIn",
         title: "Iniciar sesión",
