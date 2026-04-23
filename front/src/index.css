@@ -1,10 +1,16 @@
 :root {
-  
+  --color-border: #1F2937;
+  --background-color: #E0FDF4;
+  --color-secondary: #134E4A;
+  --text-foreground: #E0FDF4;
+  --text-primary: #1F2937;
+  --color-danger: #A50024;
+  --color-update: #3B82F6;
+  --font-main: "Montserrat", sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-  }
+  :root {}
 }
 
 body {
@@ -16,4 +22,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+
+  background-color: var(--background-color);
+  color: var(--text-primary);
+  font-family: var(--font-main);
 }
