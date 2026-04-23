@@ -1,6 +1,7 @@
 import { customElement } from 'lit/decorators.js';
 import { LitElement, html } from 'lit';
 import { navBarRoutes } from '../../router/router';
+import { navbarStyles } from './navbar.styles';
 
 
 @customElement("nav-bar")
@@ -20,6 +21,10 @@ export class NavBar extends LitElement {
         }))
     }
 
+    static styles? = [
+        navbarStyles,
+    ]
+
     render() {
         return html`
             <header>
@@ -27,7 +32,12 @@ export class NavBar extends LitElement {
                 <nav>
                     ${navBarRoutes.map((item) => {
                         return html`
-                            <a href=${item.href} @click=${(event: Event) => this.handleRouteClick(event, item.href)}>${item.title}</a>
+                            <nav-link 
+                                .href=${item.href}
+                                .title=${item.title}
+                                @click=${(event: Event) => this.handleRouteClick(event, item.href)}
+                            >
+                            </nav-link>
                         `
                     })}
                 </nav>
