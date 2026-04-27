@@ -10,7 +10,7 @@ export const appStyles = css`
     }
 
     main{
-        min-height: calc(100svh - 10.70svh);
+        height: calc(100svh - 10.70svh);
         overflow-y:auto;
     }
 `
