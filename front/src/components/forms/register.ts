@@ -25,15 +25,15 @@ export class RegisterForm extends LitElement {
         this._formData[key] = e.detail.value;
     }
 
-    private _handleSubmit = async (e: SubmitEvent) => {     
+    private _handleSubmit = async (e: SubmitEvent) => {
         e.preventDefault()
-        
+
         const isValid = validateForm({
             name: { value: this._formData.name ?? '', validators: [required(), minLength(4)], input: this._nameInput },
             email: { value: this._formData.email ?? '', validators: [required(), isEmail()], input: this._emailInput },
             password: { value: this._formData.password ?? '', validators: [required()], input: this._passwordInput },
         });
-        
+
         if (!isValid) return;
 
         const { ok, error } = await authService.register(this._formData);
@@ -78,6 +78,9 @@ export class RegisterForm extends LitElement {
 
                 >
                 </input-form>
+                <navigate-link .href=${"/signIn"} .variant=${"dark"}>
+                    ¿Ya tienes cuenta? Inicia sesión
+                </navigate-link>
                 <button-form variant=${"primary"} type=${"submit"}>Registrarse</button-form>
             </form>
         `
