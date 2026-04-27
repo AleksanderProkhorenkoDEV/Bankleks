@@ -35,7 +35,6 @@ export class NavBar extends LitElement {
                             <nav-link 
                                 .href=${item.href}
                                 .title=${item.title}
-                                @click=${(event: Event) => this.handleRouteClick(event, item.href)}
                             >
                             </nav-link>
                         `
