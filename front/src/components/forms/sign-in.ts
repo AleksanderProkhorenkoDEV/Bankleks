@@ -5,6 +5,7 @@ import type { SignInBody } from "../../types/auth";
 import { baseStyles } from "./base.styles";
 import type { InputForm } from "./parts";
 import { html, LitElement } from "lit";
+import { authService } from "../../services/auth";
 
 
 /**
@@ -39,6 +40,7 @@ export class SignInForm extends LitElement {
         if (!isValid) return;
 
         //TODO: implement toast message
+        const { ok, error } = await authService.signIn(this._formData);
     }
 
     static styles = [
