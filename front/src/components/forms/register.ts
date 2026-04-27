@@ -25,9 +25,7 @@ export class RegisterForm extends LitElement {
         this._formData[key] = e.detail.value;
     }
 
-    private _handleSubmit = async (e: SubmitEvent) => {
-        console.log('ENTRAMOS EN EL SUBMIT');
-        
+    private _handleSubmit = async (e: SubmitEvent) => {     
         e.preventDefault()
         
         const isValid = validateForm({
@@ -35,13 +33,11 @@ export class RegisterForm extends LitElement {
             email: { value: this._formData.email ?? '', validators: [required(), isEmail()], input: this._emailInput },
             password: { value: this._formData.password ?? '', validators: [required()], input: this._passwordInput },
         });
-        console.log('ES VALIDO?', isValid);
         
         if (!isValid) return;
 
         const { ok, error } = await authService.register(this._formData);
-        console.log(ok, 'USUARIO CREADO');
-        console.log(error, 'ALGO VA MAL');        
+        //TODO: implement toast message
     }
 
     static styles = [
