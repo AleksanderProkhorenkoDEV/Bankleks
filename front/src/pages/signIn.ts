@@ -5,9 +5,9 @@ import { customElement } from "lit/decorators.js";
 export class SignInPage extends LitElement {
     render() {
         return html`
-            <section>
-                <h1>Inicio de sesión</h1>
-            </section>
+            <layout-auth>
+                <signin-form></signin-form>
+            </layout-auth>
         `
     }
 }
