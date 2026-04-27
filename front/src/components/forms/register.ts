@@ -1,8 +1,11 @@
-import { isEmail, minLength, required, validate } from "../../utils/validatior";
+import { isEmail, minLength, required } from "../../utils/validatior";
+import { validateForm } from "../../utils/form.validation";
 import { customElement, query } from "lit/decorators.js";
-import { html, LitElement } from "lit";
-import type { InputForm } from "./parts";
+import { authService } from "../../services/auth";
+import type { RegisterBody } from "../../types";
 import { baseStyles } from "./base.styles";
+import type { InputForm } from "./parts";
+import { html, LitElement } from "lit";
 
 @customElement("register-form")
 export class RegisterForm extends LitElement {
@@ -15,38 +18,30 @@ export class RegisterForm extends LitElement {
     @query('input-form[name="email"]') _emailInput!: InputForm;
     @query('input-form[name="password"]') _passwordInput!: InputForm;
 
-    private _formData: Record<string, string> = {};
+    private _formData: RegisterBody = { email: "", name: "", password: "" };
 
     private _handleInputChange = (e: CustomEvent) => {
-        this._formData[e.detail.name] = e.detail.value
+        const key = e.detail.name as keyof RegisterBody;
+        this._formData[key] = e.detail.value;
     }
 
-    private _handleSubmit = (e: SubmitEvent) => {
+    private _handleSubmit = async (e: SubmitEvent) => {
+        console.log('ENTRAMOS EN EL SUBMIT');
+        
         e.preventDefault()
-        let isValid = true;
+        
+        const isValid = validateForm({
+            name: { value: this._formData.name ?? '', validators: [required(), minLength(4)], input: this._nameInput },
+            email: { value: this._formData.email ?? '', validators: [required(), isEmail()], input: this._emailInput },
+            password: { value: this._formData.password ?? '', validators: [required()], input: this._passwordInput },
+        });
+        console.log('ES VALIDO?', isValid);
+        
+        if (!isValid) return;
 
-        const nameError = validate(this._formData.name ?? '', [required(), minLength(4)])
-        const emailError = validate(this._formData.email ?? '', [required(), isEmail()])
-        const passwordError = validate(this._formData.password ?? '', [required()])
-
-        if (nameError) {
-            this._nameInput.setError(nameError)
-            isValid = false
-        }
-        if (emailError) {
-            this._emailInput.setError(emailError)
-            isValid = false
-        }
-        if (passwordError) {
-            this._passwordInput.setError(passwordError)
-            isValid = false
-        }
-
-        if (!isValid) return
-
-        //TODO añadir llamada al back
-        alert("Todo es válido")
-
+        const { ok, error } = await authService.register(this._formData);
+        console.log(ok, 'USUARIO CREADO');
+        console.log(error, 'ALGO VA MAL');        
     }
 
     static styles = [
