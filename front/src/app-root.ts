@@ -3,6 +3,7 @@ import { authRoutes, navBarRoutes } from './router/router'
 import { LitElement, html } from 'lit'
 import { appStyles } from './app.styles.css';
 import { middleware } from './middleware';
+import { authService } from './services/auth';
 
 
 
@@ -15,6 +16,11 @@ export class AppRoot extends LitElement {
   constructor() {
     super();
     this._updateUrl("/signIn")
+    this._initialiceAuth()
+  }
+
+  private _initialiceAuth = async () => {
+    await authService.initialize();
   }
 
   private _handleNavigation = (e: Event) => {
@@ -25,6 +31,9 @@ export class AppRoot extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     this.addEventListener('navigate', this._handleNavigation);
+    window.addEventListener('session-expired', () => {
+      this._updateUrl('/signIn');
+    });
   }
 
   disconnectedCallback() {
