@@ -2,19 +2,19 @@ import { customElement, property } from 'lit/decorators.js'
 import { authRoutes, navBarRoutes } from './router/router'
 import { LitElement, html } from 'lit'
 import { appStyles } from './app.styles.css';
+import { middleware } from './middleware';
 
 
 
 @customElement('app-root')
 export class AppRoot extends LitElement {
 
-
   @property()
   private _activeRoute: string = ""
 
   constructor() {
     super();
-    this._updateUrl("/resumen")
+    this._updateUrl("/register")
   }
 
   private __handleNavigation = (event: CustomEvent) => {
@@ -23,8 +23,9 @@ export class AppRoot extends LitElement {
   }
 
   private _updateUrl = (route: string) => {
-    history.pushState({}, '', route)
-    this._activeRoute = route
+    const href = middleware(route)
+    history.pushState({}, '', href)
+    this._activeRoute = href
   }
 
   static styles? = [
