@@ -14,12 +14,22 @@ export class AppRoot extends LitElement {
 
   constructor() {
     super();
-    this._updateUrl("/register")
+    this._updateUrl("/signIn")
   }
 
-  private __handleNavigation = (event: CustomEvent) => {
-    const route = event.detail.href
-    this._updateUrl(route)
+  private _handleNavigation = (e: Event) => {
+    const event = e as CustomEvent;
+    this._updateUrl(event.detail.href)
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.addEventListener('navigate', this._handleNavigation);
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.removeEventListener('navigate', this._handleNavigation);
   }
 
   private _updateUrl = (route: string) => {
@@ -37,7 +47,7 @@ export class AppRoot extends LitElement {
     const route = allRoutes.find(item => item.href === this._activeRoute)
 
     return html`
-      <nav-bar @navigate=${this.__handleNavigation}></nav-bar>
+      <nav-bar></nav-bar>
       <main>
         ${route ? route.component() : html`<p>404 not found</p>`}
       </main>
