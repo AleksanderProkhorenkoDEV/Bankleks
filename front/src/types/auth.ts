@@ -15,3 +15,8 @@ export interface RegisterResponse {
     message: string;
     status: number;
 }
+
+export interface SignInBody {
+    email: string,
+    password: string
+}
