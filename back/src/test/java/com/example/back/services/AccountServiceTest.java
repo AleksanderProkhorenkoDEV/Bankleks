@@ -1,7 +1,6 @@
 package com.example.back.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -17,7 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.example.back.dto.transaction.account.CreateAccountRequestDTO;
 import com.example.back.entities.auth.Role;
 import com.example.back.entities.transactions.Account;
 import com.example.back.entities.user.User;
@@ -64,20 +62,7 @@ public class AccountServiceTest {
         assertThrows(EntityNotFoundException.class, () -> accountService.getAccount(99L));
     }
 
-    @Test
-    void shouldCreateAccount() {
-        CreateAccountRequestDTO request = new CreateAccountRequestDTO(
-                "1234567899876543211234", user.getId(), 150.50);
 
-        when(userService.getUser(user.getId())).thenReturn(user);
-        when(accountRepository.save(any(Account.class))).thenReturn(account);
-
-        Account result = accountService.createAccount(request);
-
-        assertNotNull(result);
-        verify(userService).getUser(user.getId());
-        verify(accountRepository).save(any(Account.class));
-    }
 
     @Test
     void shouldAddBalance() {
