@@ -1,45 +1,78 @@
-import { customElement } from 'lit/decorators.js';
-import { LitElement, html } from 'lit';
-import { navBarRoutes } from '../../router/router';
+import { authRoutes, navBarRoutes } from '../../router/router';
+import { customElement, state } from 'lit/decorators.js';
 import { navbarStyles } from './navbar.styles';
+import { LitElement, html } from 'lit';
+import { authStore } from '../../store/auth';
+import { signOut } from '../../services/auth';
 
 
 @customElement("nav-bar")
 export class NavBar extends LitElement {
 
-
-    handleRouteClick = (event: Event, route: string) => {
-        event.preventDefault();
-        this._navigate(route)
-    }
-
-    private _navigate = (href: String) => {
-        this.dispatchEvent(new CustomEvent('navigate', {
-            detail: { href },
-            bubbles: true,
-            composed: true
-        }))
-    }
+    @state() private _unsubscribe?: () => void
 
     static styles? = [
         navbarStyles,
     ]
 
+
+    connectedCallback(): void {
+        super.connectedCallback()
+
+        this._unsubscribe = authStore.subscribe(() => {
+            this.requestUpdate();
+        })
+    }
+
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        this._unsubscribe?.();
+    }
+
+    private _handleLogout = async () => {
+        const { ok, error } = await signOut();
+        console.log(ok, error);
+        window.dispatchEvent(new CustomEvent('navigate', {
+            detail: { href: '/signIn' }
+        }));
+    }
+
     render() {
+
+        const { user } = authStore.getState()
+
+        const allRoutes = [...navBarRoutes, ...authRoutes]
+        const visibleRoutes = allRoutes.filter(route => {
+            // si hay usuario, no mostrar rutas públicas
+            if (user && route.public) return false;
+            // si no hay usuario, no mostrar rutas privadas
+            if (!user && !route.public) return false;
+            // filtrar por rol
+            if (route.roles && !route.roles.some(role => role === user?.role)) return false;
+
+            return true;
+        });
+
         return html`
             <header>
                 <h1>Bankleks</h1>
                 <nav>
-                    ${navBarRoutes.map((item) => {
-                        return html`
+                    ${visibleRoutes.map((item) => {
+            return html`
                             <nav-link 
                                 .href=${item.href}
                                 .title=${item.title}
-                                @click=${(event: Event) => this.handleRouteClick(event, item.href)}
                             >
                             </nav-link>
                         `
-                    })}
+        })}
+                    ${user && html`<button-form 
+                                        .type=${"button"} 
+                                        .variant=${"danger"}
+                                        @click=${this._handleLogout}
+                                    >
+                                        Cerrar sesión
+                                    </button-form>`}
                 </nav>
             </header>
         `

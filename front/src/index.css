@@ -2,9 +2,11 @@
   --color-border: #1F2937;
   --background-color: #E0FDF4;
   --color-secondary: #134E4A;
+  --color-tertiary: #0F766E;
   --text-foreground: #E0FDF4;
   --text-primary: #1F2937;
   --color-danger: #A50024;
+  --color-danger-rgb: 165, 0, 36;
   --color-update: #3B82F6;
   --font-main: "Montserrat", sans-serif;
 }
