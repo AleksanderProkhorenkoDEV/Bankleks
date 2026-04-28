@@ -11,6 +11,7 @@ export const appStyles = css`
 
     main{
         height: calc(100svh - 10.70svh);
-        overflow-y:auto;
+        overflow:hidden;
+        position:relative;
     }
 `

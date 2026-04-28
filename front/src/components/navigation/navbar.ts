@@ -1,9 +1,9 @@
 import { authRoutes, navBarRoutes } from '../../router/router';
 import { customElement, state } from 'lit/decorators.js';
 import { navbarStyles } from './navbar.styles';
-import { LitElement, html } from 'lit';
-import { authStore } from '../../store/auth';
 import { signOut } from '../../services/auth';
+import { authStore } from '../../store/auth';
+import { LitElement, html } from 'lit';
 
 
 @customElement("nav-bar")
@@ -52,6 +52,7 @@ export class NavBar extends LitElement {
 
             return true;
         });
+       
 
         return html`
             <header>
