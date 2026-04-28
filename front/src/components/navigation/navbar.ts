@@ -1,25 +1,11 @@
-import { customElement } from 'lit/decorators.js';
-import { LitElement, html } from 'lit';
 import { navBarRoutes } from '../../router/router';
+import { customElement } from 'lit/decorators.js';
 import { navbarStyles } from './navbar.styles';
+import { LitElement, html } from 'lit';
 
 
 @customElement("nav-bar")
 export class NavBar extends LitElement {
-
-
-    handleRouteClick = (event: Event, route: string) => {
-        event.preventDefault();
-        this._navigate(route)
-    }
-
-    private _navigate = (href: String) => {
-        this.dispatchEvent(new CustomEvent('navigate', {
-            detail: { href },
-            bubbles: true,
-            composed: true
-        }))
-    }
 
     static styles? = [
         navbarStyles,
