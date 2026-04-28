@@ -8,6 +8,11 @@ export class NavLink extends LitElement {
     @property() href = '';
     @property() title = '';
 
+    /**
+     * Usamos window para enviar el evento, porque si no el root 
+     * no detecta el cambio.
+     * @param e 
+     */
     private _handleClick = (e: Event) => {
         e.preventDefault();
         window.dispatchEvent(new CustomEvent('navigate', {
