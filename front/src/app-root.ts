@@ -10,11 +10,13 @@ import { authStore } from './store/auth';
 @customElement('app-root')
 export class AppRoot extends LitElement {
 
-  @property()
-  private _activeRoute: string = ""
+  @property() private _activeRoute: string = ""
 
-  @state()
-  private _unsuscribeAuth: (() => void) | null = null
+  @state() private _unsuscribeAuth: (() => void) | null = null
+  @state() private showToast: boolean = false
+  @state() private toastType: "success" | "error" = "success"
+  @state() private toastMessage: string = ""
+
 
   constructor() {
     super();
@@ -35,6 +37,8 @@ export class AppRoot extends LitElement {
       this._updateUrl('/signIn');
     });
 
+    this.addEventListener('show-toast', this._handleToast as EventListener)
+
     const unsubscribe = authStore.subscribe(() => {
       this.requestUpdate();
     });
@@ -46,6 +50,20 @@ export class AppRoot extends LitElement {
     super.disconnectedCallback();
     window.removeEventListener('navigate', this._handleNavigation);
     this._unsuscribeAuth?.();
+    this.removeEventListener('show-toast', this._handleToast as EventListener);
+
+  }
+
+  private _handleToast(e: CustomEvent) {
+    const { message, type } = e.detail;
+
+    this.toastMessage = message;
+    this.toastType = type;
+    this.showToast = true;
+
+    setTimeout(() => {
+      this.showToast = false;
+    }, 4000);
   }
 
   private _updateUrl = (route: string) => {
@@ -66,6 +84,15 @@ export class AppRoot extends LitElement {
       <nav-bar></nav-bar>
       <main>
         ${route ? route.component() : html`<p>404 not found</p>`}
+
+        ${this.showToast && html`
+          <toast-message 
+            variant=${this.toastType} 
+            .content=${this.toastMessage}
+          >
+          </toast-message>
+        `
+      }
       </main>
     `
   }
