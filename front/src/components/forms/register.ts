@@ -2,10 +2,10 @@ import { isEmail, minLength, required } from "../../utils/validatior";
 import { validateForm } from "../../utils/form.validation";
 import { customElement, query } from "lit/decorators.js";
 import type { RegisterBody } from "../../types";
+import { register } from "../../services/auth";
 import { baseStyles } from "./base.styles";
 import type { InputForm } from "./parts";
 import { html, LitElement } from "lit";
-import { register } from "../../services/auth";
 
 @customElement("register-form")
 export class RegisterForm extends LitElement {
@@ -36,10 +36,31 @@ export class RegisterForm extends LitElement {
 
         if (!isValid) return;
 
-        const { ok, error } = await register(this._formData);
-        //TODO: implement toast message
-        console.log(ok, error);
-        
+        const { error } = await register(this._formData);
+        if (error) {
+            this.dispatchEvent(new CustomEvent("show-toast", {
+                detail: {
+                    type: "error",
+                    message: "No hemos podido registrarte en la aplicación."
+                },
+                bubbles: true,
+                composed: true
+            }));
+        }
+
+        this.dispatchEvent(new CustomEvent("show-toast", {
+            detail: {
+                type: "success",
+                message: "Usuario creado correctamente. Redirigiendo al login."
+            },
+            bubbles: true,
+            composed: true
+        }));
+
+        window.dispatchEvent(new CustomEvent('navigate', {
+            detail: { href: "/signIn" }
+        }));
+
     }
 
     static styles = [

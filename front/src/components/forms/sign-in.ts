@@ -37,9 +37,31 @@ export class SignInForm extends LitElement {
 
         if (!isValid) return;
 
-        //TODO: implement toast message
-        const { ok, error } = await signIn(this._formData);
-        console.log(ok, error);
+        const { error } = await signIn(this._formData);
+
+        if (error) {
+            this.dispatchEvent(new CustomEvent("show-toast", {
+                detail: {
+                    type: "error",
+                    message: "No hemos podido iniciar sesión en tu cuenta."
+                },
+                bubbles: true,
+                composed: true
+            }));
+            return
+        }
+        this.dispatchEvent(new CustomEvent("show-toast", {
+            detail: {
+                type: "success",
+                message: "Se ha iniciado sesión correctamente"
+            },
+            bubbles: true,
+            composed: true
+        }));
+
+        window.dispatchEvent(new CustomEvent('navigate', {
+            detail: { href: "/resumen" }
+        }));
     }
 
     static styles = [
