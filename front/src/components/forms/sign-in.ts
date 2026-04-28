@@ -6,7 +6,6 @@ import { signIn } from "../../services/auth";
 import { baseStyles } from "./base.styles";
 import type { InputForm } from "./parts";
 import { html, LitElement } from "lit";
-import { authStore } from "../../store/auth";
 
 
 /**
@@ -41,7 +40,6 @@ export class SignInForm extends LitElement {
         //TODO: implement toast message
         const { ok, error } = await signIn(this._formData);
         console.log(ok, error);
-        console.log(authStore.getState());
     }
 
     static styles = [

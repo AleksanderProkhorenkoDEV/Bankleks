@@ -44,7 +44,6 @@ export const initialize = async (): Promise<void> => {
 export const signIn = async (body: SignInBody): Promise<ServiceResponse> => {
     try {
         const data = await request<SignInResponse>('/auth/login', { method: 'POST', body: JSON.stringify(body) });
-        console.log('DATA DE LA REQUEST', data);
         authStore.setState({ jwt: data.token, user: { name: data.userName, role: data.rol } });
         startRefreshTimer();
         return { ok: true };
@@ -64,5 +63,15 @@ export const register = async (body: RegisterBody): Promise<ServiceResponse> => 
     }
 }
 
+export const signOut = async (): Promise<ServiceResponse> => {
+    try {
+        await request<ServiceResponse>('/auth/logout', { method: 'POST' });
+        authStore.setState({ user: null, jwt: null })
+        return { ok: true };
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Error desconocido';
+        return { ok: false, error: message };
+    }
+}
 
 

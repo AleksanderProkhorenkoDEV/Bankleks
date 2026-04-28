@@ -1,7 +1,7 @@
 import type { User } from "../types";
 
 type Listener = () => void;
-console.log('STORE INICIALIZADO');
+
 /**
  *  Simulamos un contexto como podría ser zustan, al que suscribimos nuestra 
  *  aplicación así, podemos acceder al usuario etc. En cualquier lado de la aplicación.
@@ -9,7 +9,6 @@ console.log('STORE INICIALIZADO');
  *  javascript cargaba otro modulo y se perdía la información.
  * 
  */
-
 function createStore<T>(initialState: T) {
     let _state = initialState;
     const _listeners = new Set<Listener>();
