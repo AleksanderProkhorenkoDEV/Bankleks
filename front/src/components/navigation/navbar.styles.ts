@@ -26,6 +26,7 @@ export const navbarStyles = css`
 
     nav{
         display: flex;
+        align-items:center;
         gap: 2rem;
     }
 `
