@@ -23,7 +23,7 @@ const startRefreshTimer = () => {
 export const refresh = async (): Promise<void> => {
     try {
         const data = await request<SignInResponse>('/auth/refresh', { method: 'POST', body: JSON.stringify({}) });
-        authStore.setState({ jwt: data.token, user: { name: data.userName, role: data.rol } });
+        authStore.setState({ jwt: data.token, user: { id: data.id, name: data.userName, role: data.rol } });
     } catch {
         authStore.setState({ jwt: null, user: null });
         stopRefreshTimer();
@@ -34,7 +34,7 @@ export const refresh = async (): Promise<void> => {
 export const initialize = async (): Promise<void> => {
     try {
         const data = await request<SignInResponse>('/auth/refresh', { method: 'POST', body: JSON.stringify({}) });
-        authStore.setState({ jwt: data.token, user: { name: data.userName, role: data.rol } });
+        authStore.setState({ jwt: data.token, user: { id: data.id, name: data.userName, role: data.rol } });
         startRefreshTimer();
     } catch {
         authStore.setState({ jwt: null, user: null });
@@ -44,7 +44,7 @@ export const initialize = async (): Promise<void> => {
 export const signIn = async (body: SignInBody): Promise<ServiceResponse> => {
     try {
         const data = await request<SignInResponse>('/auth/login', { method: 'POST', body: JSON.stringify(body) });
-        authStore.setState({ jwt: data.token, user: { name: data.userName, role: data.rol } });
+        authStore.setState({ jwt: data.token, user: { id: data.id, name: data.userName, role: data.rol } });
         startRefreshTimer();
         return { ok: true };
     } catch (error) {
