@@ -1,11 +1,11 @@
 import { isEmail, minLength, required } from "../../utils/validatior";
 import { validateForm } from "../../utils/form.validation";
 import { customElement, query } from "lit/decorators.js";
-import { authService } from "../../services/auth";
 import type { RegisterBody } from "../../types";
 import { baseStyles } from "./base.styles";
 import type { InputForm } from "./parts";
 import { html, LitElement } from "lit";
+import { register } from "../../services/auth";
 
 @customElement("register-form")
 export class RegisterForm extends LitElement {
@@ -36,8 +36,10 @@ export class RegisterForm extends LitElement {
 
         if (!isValid) return;
 
-        const { ok, error } = await authService.register(this._formData);
+        const { ok, error } = await register(this._formData);
         //TODO: implement toast message
+        console.log(ok, error);
+        
     }
 
     static styles = [

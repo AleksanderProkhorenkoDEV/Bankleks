@@ -2,10 +2,11 @@ import { validateForm } from "../../utils/form.validation";
 import { isEmail, required } from "../../utils/validatior";
 import { customElement, query } from "lit/decorators.js";
 import type { SignInBody } from "../../types/auth";
+import { signIn } from "../../services/auth";
 import { baseStyles } from "./base.styles";
 import type { InputForm } from "./parts";
 import { html, LitElement } from "lit";
-import { authService } from "../../services/auth";
+import { authStore } from "../../store/auth";
 
 
 /**
@@ -21,8 +22,6 @@ export class SignInForm extends LitElement {
     @query('input-form[name="password"]') _passwordInput!: InputForm;
 
     private _formData: SignInBody = { email: "", password: "" };
-
-
 
     private _handleInputChange = (e: CustomEvent) => {
         const key = e.detail.name as keyof SignInBody;
@@ -40,7 +39,9 @@ export class SignInForm extends LitElement {
         if (!isValid) return;
 
         //TODO: implement toast message
-        const { ok, error } = await authService.signIn(this._formData);
+        const { ok, error } = await signIn(this._formData);
+        console.log(ok, error);
+        console.log(authStore.getState());
     }
 
     static styles = [
