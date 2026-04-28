@@ -1,9 +1,9 @@
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import { authRoutes, navBarRoutes } from './router/router'
 import { LitElement, html } from 'lit'
 import { appStyles } from './app.styles.css';
 import { middleware } from './middleware';
-import { authService } from './services/auth';
+import { authStore } from './store/auth';
 
 
 
@@ -13,15 +13,14 @@ export class AppRoot extends LitElement {
   @property()
   private _activeRoute: string = ""
 
+  @state()
+  private _unsuscribeAuth: (() => void) | null = null
+
   constructor() {
     super();
     this._updateUrl("/signIn")
-    this._initialiceAuth()
   }
 
-  private _initialiceAuth = async () => {
-    await authService.initialize();
-  }
 
   private _handleNavigation = (e: Event) => {
     const event = e as CustomEvent;
@@ -30,15 +29,23 @@ export class AppRoot extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-    this.addEventListener('navigate', this._handleNavigation);
+
+    window.addEventListener('navigate', this._handleNavigation);
     window.addEventListener('session-expired', () => {
       this._updateUrl('/signIn');
     });
+
+    const unsubscribe = authStore.subscribe(() => {
+      this.requestUpdate();
+    });
+
+    this._unsuscribeAuth = unsubscribe;
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
-    this.removeEventListener('navigate', this._handleNavigation);
+    window.removeEventListener('navigate', this._handleNavigation);
+    this._unsuscribeAuth?.();
   }
 
   private _updateUrl = (route: string) => {
