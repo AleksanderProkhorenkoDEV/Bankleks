@@ -1,33 +1,68 @@
-import type { RegisterBody, User } from "../types";
-import type { RegisterResponse } from "../types/auth";
-import { HttpService } from "./http";
+import type { RegisterResponse, ServiceResponse, SignInBody, SignInResponse } from "../types/auth";
+import type { RegisterBody } from "../types";
+import { authStore } from "../store/auth";
+import { request } from "./http";
 
-class AuthService extends HttpService {
-    private _user: User | null = null;
+let _refreshTimer: number | null = null;
 
-    getUser(): User | null {
-        return this._user;
-    }
-
-    setUser(user: User) {
-        this._user = user;
-    }
-
-    clear() {
-        this._user = null;
-    }
-
-
-    async register(body: RegisterBody): Promise<{ ok: boolean, error?: string }> {
-        console.log('BODY QUE ENVIAMOS', body);
-        
-        try {
-            await this.post<RegisterResponse>('/auth/register', body);
-            return { ok: true };
-        } catch (error: any) {
-            return { ok: false, error: error.message };
-        }
+const stopRefreshTimer = () => {
+    if (_refreshTimer) {
+        clearInterval(_refreshTimer);
+        _refreshTimer = null;
     }
 }
 
-export const authService = new AuthService();
+const startRefreshTimer = () => {
+    stopRefreshTimer();
+    _refreshTimer = window.setInterval(async () => {
+        await refresh();
+    }, 14 * 60 * 1000);
+}
+
+
+export const refresh = async (): Promise<void> => {
+    try {
+        const data = await request<SignInResponse>('/auth/refresh', { method: 'POST', body: JSON.stringify({}) });
+        authStore.setState({ jwt: data.token, user: { name: data.userName, role: data.rol } });
+    } catch {
+        authStore.setState({ jwt: null, user: null });
+        stopRefreshTimer();
+        window.dispatchEvent(new CustomEvent('session-expired'));
+    }
+}
+
+export const initialize = async (): Promise<void> => {
+    try {
+        const data = await request<SignInResponse>('/auth/refresh', { method: 'POST', body: JSON.stringify({}) });
+        authStore.setState({ jwt: data.token, user: { name: data.userName, role: data.rol } });
+        startRefreshTimer();
+    } catch {
+        authStore.setState({ jwt: null, user: null });
+    }
+}
+
+export const signIn = async (body: SignInBody): Promise<ServiceResponse> => {
+    try {
+        const data = await request<SignInResponse>('/auth/login', { method: 'POST', body: JSON.stringify(body) });
+        console.log('DATA DE LA REQUEST', data);
+        authStore.setState({ jwt: data.token, user: { name: data.userName, role: data.rol } });
+        startRefreshTimer();
+        return { ok: true };
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Error desconocido';
+        return { ok: false, error: message };
+    }
+}
+
+export const register = async (body: RegisterBody): Promise<ServiceResponse> => {
+    try {
+        await request<RegisterResponse>('/auth/register', { method: 'POST', body: JSON.stringify(body) });
+        return { ok: true };
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Error desconocido';
+        return { ok: false, error: message };
+    }
+}
+
+
+

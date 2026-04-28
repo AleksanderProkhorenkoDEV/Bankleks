@@ -1,8 +1,9 @@
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import { authRoutes, navBarRoutes } from './router/router'
 import { LitElement, html } from 'lit'
 import { appStyles } from './app.styles.css';
 import { middleware } from './middleware';
+import { authStore } from './store/auth';
 
 
 
@@ -12,14 +13,39 @@ export class AppRoot extends LitElement {
   @property()
   private _activeRoute: string = ""
 
+  @state()
+  private _unsuscribeAuth: (() => void) | null = null
+
   constructor() {
     super();
-    this._updateUrl("/register")
+    this._updateUrl("/signIn")
   }
 
-  private __handleNavigation = (event: CustomEvent) => {
-    const route = event.detail.href
-    this._updateUrl(route)
+
+  private _handleNavigation = (e: Event) => {
+    const event = e as CustomEvent;
+    this._updateUrl(event.detail.href)
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+
+    window.addEventListener('navigate', this._handleNavigation);
+    window.addEventListener('session-expired', () => {
+      this._updateUrl('/signIn');
+    });
+
+    const unsubscribe = authStore.subscribe(() => {
+      this.requestUpdate();
+    });
+
+    this._unsuscribeAuth = unsubscribe;
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    window.removeEventListener('navigate', this._handleNavigation);
+    this._unsuscribeAuth?.();
   }
 
   private _updateUrl = (route: string) => {
@@ -37,7 +63,7 @@ export class AppRoot extends LitElement {
     const route = allRoutes.find(item => item.href === this._activeRoute)
 
     return html`
-      <nav-bar @navigate=${this.__handleNavigation}></nav-bar>
+      <nav-bar></nav-bar>
       <main>
         ${route ? route.component() : html`<p>404 not found</p>`}
       </main>

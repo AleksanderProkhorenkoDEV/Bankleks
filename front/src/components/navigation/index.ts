@@ -1,2 +1,3 @@
+export { NavigateLink } from "./links"
 export { NavLink } from "./navLink"
 export { NavBar } from "./navbar"

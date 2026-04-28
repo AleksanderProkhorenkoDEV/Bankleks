@@ -1,7 +1,11 @@
 export interface User {
-    id: string,
     name: string,
-    role: 'client' | 'admin'
+    role: 'ROLE_CLIENT' | 'ROLE_ADMINISTRATOR'
+}
+
+export interface ServiceResponse {
+    ok: boolean;
+    error?: string;
 }
 
 export interface RegisterBody {
@@ -14,4 +18,15 @@ export interface RegisterBody {
 export interface RegisterResponse {
     message: string;
     status: number;
+}
+
+export interface SignInBody {
+    email: string,
+    password: string
+}
+
+export interface SignInResponse {
+    userName: string;
+    token: string;
+    rol: 'ROLE_CLIENT' | 'ROLE_ADMINISTRATOR';
 }

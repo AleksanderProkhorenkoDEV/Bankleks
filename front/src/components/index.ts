@@ -1,6 +1,5 @@
 //Barrel export, to import all components in main index.html
 
-export { RegisterForm } from "./forms";
-export { NavBar } from "./navigation";
-export { ButtonForm } from "./forms";
-export { InputForm } from "./forms";
+export { ButtonForm, InputForm, RegisterForm, SignInForm } from "./forms";
+export { NavBar, NavigateLink } from "./navigation";
+export { LayoutAuth } from "./layout";
