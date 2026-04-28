@@ -7,28 +7,35 @@ export const navBarRoutes: Router[] = [
         title: "Resumen",
         component: () => html`<resume-page></resume-page>`,
         public: false,
-        roles: ["ROLE_CLIENT", "ROLE_ADMINISTRATOR"]
+        roles: ["CLIENT", "ADMINISTRATOR"]
+    },
+    {
+        href: "/cuenta",
+        title: "Gestión de cuenta",
+        component: () => html`<account-page></account-page>`,
+        public: false,
+        roles: ["CLIENT", "ADMINISTRATOR"]
     },
     {
         href: "/movimientos",
         title: "Movimientos",
         component: () => html`<movements-page></movements-page>`,
         public: false,
-        roles: ["ROLE_CLIENT", "ROLE_ADMINISTRATOR"]
+        roles: ["CLIENT", "ADMINISTRATOR"]
     },
     {
         href: "/transacciones",
         title: "Transacciones",
         component: () => html`<transaction-page></transaction-page>`,
         public: false,
-        roles: ["ROLE_CLIENT", "ROLE_ADMINISTRATOR"]
+        roles: ["CLIENT", "ADMINISTRATOR"]
     },
     {
         href: "/panel",
         title: "Panel",
         component: () => html`<panel-page></panel-page>`,
         public: false,
-        roles: ["ROLE_ADMINISTRATOR"]
+        roles: ["ADMINISTRATOR"]
     }
 ]
 
