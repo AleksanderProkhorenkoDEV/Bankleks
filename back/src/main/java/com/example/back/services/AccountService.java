@@ -5,7 +5,6 @@ import java.util.Random;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import com.example.back.dto.transaction.account.CreateAccountRequestDTO;
 import com.example.back.entities.transactions.Account;
 import com.example.back.entities.user.User;
 import com.example.back.repositories.AccountRepository;
@@ -17,11 +16,9 @@ import jakarta.transaction.Transactional;
 public class AccountService {
 
     private AccountRepository accountRepository;
-    private UserService userService;
 
-    public AccountService(AccountRepository accountRepository, UserService userService) {
+    public AccountService(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
-        this.userService = userService;
 
     }
 
@@ -29,11 +26,13 @@ public class AccountService {
         return accountRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
-
     /**
-     * Cuenta el total de cuentas, genera un número aleatorio entre 0 y la cantidad de registros -1
-     * el randomOffset, es la elección aleatoria de paginas que hay en la BBDD y obtiene un único 
+     * Cuenta el total de cuentas, genera un número aleatorio entre 0 y la cantidad
+     * de registros -1
+     * el randomOffset, es la elección aleatoria de paginas que hay en la BBDD y
+     * obtiene un único
      * elemento.
+     * 
      * @return Account
      */
     public Account getRandomAccount() {
@@ -45,9 +44,8 @@ public class AccountService {
     }
 
     @Transactional
-    public Account createAccount(CreateAccountRequestDTO request) {
-        User user = userService.getUser(request.getUserId());
-        Account account = new Account(request.getBalance(), user, request.getAccountNumber());
+    public Account createAccount(User user) {
+        Account account = new Account(0D, user, this.generarIbanSimple());
         return accountRepository.save(account);
     }
 
@@ -62,6 +60,17 @@ public class AccountService {
         }
         account.setBalance(account.getBalance() - amount);
         accountRepository.save(account);
+    }
+
+    private String generarIbanSimple() {
+        Random random = new Random();
+        StringBuilder iban = new StringBuilder("ES");
+
+        for (int i = 0; i < 22; i++) {
+            iban.append(random.nextInt(10));
+        }
+
+        return iban.toString();
     }
 
 }

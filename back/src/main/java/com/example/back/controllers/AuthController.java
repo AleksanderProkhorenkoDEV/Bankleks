@@ -8,7 +8,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,15 +20,12 @@ import com.example.back.dto.auth.LoginResponseDTO;
 import com.example.back.dto.auth.RefreshResponseDTO;
 import com.example.back.dto.auth.RegisterRequestDTO;
 import com.example.back.entities.auth.RefreshToken;
-import com.example.back.entities.auth.Role;
-import com.example.back.entities.user.User;
 import com.example.back.repositories.RefreshTokenRepository;
-import com.example.back.repositories.RoleRepository;
 import com.example.back.repositories.UserRepository;
+import com.example.back.services.AuthService;
 import com.example.back.services.JwtService;
 import com.example.back.services.RefreshTokenService;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -42,23 +38,21 @@ public class AuthController {
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final PasswordEncoder passwordEncoder;
     private final RefreshTokenService refreshTokenService;
-    private final RoleRepository roleRepository;
+    private final AuthService authService;
 
     @Value("${app.cookie.secure:true}")
     private boolean secureCookie;
 
     public AuthController(AuthenticationManager authenticationManager, JwtService jwtService,
-            UserRepository userRepository, PasswordEncoder passwordEncoder, RefreshTokenService refreshTokenService,
-            RefreshTokenRepository refreshTokenRepository, RoleRepository roleRepository) {
+            UserRepository userRepository, RefreshTokenService refreshTokenService,
+            RefreshTokenRepository refreshTokenRepository, AuthService authService) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
         this.refreshTokenService = refreshTokenService;
         this.refreshTokenRepository = refreshTokenRepository;
-        this.roleRepository = roleRepository;
+        this.authService = authService;
     }
 
     @PostMapping("/login")
@@ -111,16 +105,9 @@ public class AuthController {
                     .body(new GlobalResponseDTO("El email ya esta en uso", HttpStatus.BAD_REQUEST.value()));
         }
 
-        userRepository.save(createUser(request));
+        this.authService.registerUser(request);
 
         return ResponseEntity.ok(new GlobalResponseDTO("Usuario creado correctamente", HttpStatus.OK.value()));
-    }
-
-    private User createUser(RegisterRequestDTO request) {
-        Role role = roleRepository.findByName("CLIENT")
-                .orElseThrow(EntityNotFoundException::new);
-
-        return new User(request.getName(), request.getEmail(), passwordEncoder.encode(request.getPassword()), role);
     }
 
     @PostMapping("/refresh")
