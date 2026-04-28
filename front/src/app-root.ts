@@ -85,14 +85,15 @@ export class AppRoot extends LitElement {
       <main>
         ${route ? route.component() : html`<p>404 not found</p>`}
 
-        ${this.showToast && html`
-          <toast-message 
-            variant=${this.toastType} 
-            .content=${this.toastMessage}
-          >
-          </toast-message>
-        `
-      }
+        ${this.showToast
+              ? html`
+            <toast-message 
+              variant=${this.toastType} 
+              .content=${this.toastMessage}
+            ></toast-message>
+          `
+          : ''
+        }
       </main>
     `
   }
