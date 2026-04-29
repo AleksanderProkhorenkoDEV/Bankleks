@@ -13,34 +13,23 @@ public class CreateTransactionRequestDTO {
     @NotEmpty(message = "{validation.notEmpty}")
     private String concept;
 
-    @NotNull(message = "${validation.notNull}")
+    @NotNull(message = "{validation.notNull}")
     @PositiveOrZero
     private Double amount;
 
-    @PositiveOrZero
-    private Long destinationAccountId;
-
-    @PositiveOrZero
-    private Long originAccountId;
-
-    @NotNull(message = "{validation.notNull}")
-    @PositiveOrZero
-    private Long userId;
+    private String destinationIban;
+    private String originIban;
 
     @NotNull(message = "{validation.notNull}")
     private TransactionType transactionType;
 
     public CreateTransactionRequestDTO(@NotEmpty(message = "{validation.notEmpty}") String concept,
-            @NotNull(message = "${validation.notNull}") @PositiveOrZero Double amount,
-            @NotNull(message = "{validation.notNull}") @PositiveOrZero Long destinationAccountId,
-            @NotNull(message = "{validation.notNull}") @PositiveOrZero Long originAccountId,
-            @NotNull(message = "{validation.notNull}") @PositiveOrZero Long userId,
-            @NotNull(message = "{validation.notNullt}") TransactionType transactionType) {
+            @NotNull(message = "{validation.notNull}") @PositiveOrZero Double amount, String destinationIban,
+            String originIban, @NotNull(message = "{validation.notNull}") TransactionType transactionType) {
         this.concept = concept;
         this.amount = amount;
-        this.destinationAccountId = destinationAccountId;
-        this.originAccountId = originAccountId;
-        this.userId = userId;
+        this.destinationIban = destinationIban;
+        this.originIban = originIban;
         this.transactionType = transactionType;
     }
 

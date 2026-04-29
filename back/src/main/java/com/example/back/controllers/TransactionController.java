@@ -17,6 +17,8 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,8 +50,10 @@ public class TransactionController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<GlobalResponseDTO> createTransaction(@Valid @RequestBody CreateTransactionRequestDTO request) {
-        transactionServices.createTransaction(request);
+    public ResponseEntity<GlobalResponseDTO> createTransaction(
+            @Valid @RequestBody CreateTransactionRequestDTO request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        transactionServices.createTransaction(request, userDetails.getUsername());
         return ResponseEntity.ok(new GlobalResponseDTO("Transacción creada", HttpStatus.CREATED.value()));
     }
 
