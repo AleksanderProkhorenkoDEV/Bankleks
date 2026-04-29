@@ -10,19 +10,22 @@ import lombok.Data;
 public class PageResponseDTO<T> {
 
     private List<T> content;
-    private Integer page;
-    private Integer size;
-    private Long totalElements;
+    private Integer currentPage;
     private Integer totalPages;
-    private Boolean last;
+    private Long totalElements;
 
     public PageResponseDTO(Page<T> page) {
         this.content = page.getContent();
-        this.page = page.getNumber();
-        this.size = page.getSize();
-        this.totalElements = page.getTotalElements();
+        this.currentPage = page.getNumber();
         this.totalPages = page.getTotalPages();
-        this.last = page.isLast();
+        this.totalElements = page.getTotalElements();
+    }
+
+    public PageResponseDTO(List<T> content, Integer currentPage, Integer totalPages, Long totalElements) {
+        this.content = content;
+        this.currentPage = currentPage;
+        this.totalPages = totalPages;
+        this.totalElements = totalElements;
     }
 
 }
