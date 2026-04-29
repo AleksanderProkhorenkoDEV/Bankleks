@@ -1,6 +1,7 @@
 package com.example.back.controllers.transactions.transaction;
 
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -47,20 +48,20 @@ public class TransactionControllerCreateTest extends TransactionControllerBase {
         CreateTransactionRequestDTO request = new CreateTransactionRequestDTO(
                 "test concept",
                 6.99,
-                destination.getId(),
+                destination.getAccountNumber(),
                 null,
-                user.getId(),
                 TransactionType.DEPOSIT);
 
-        doNothing().when(transactionServices).createTransaction(request);
+        doNothing().when(transactionServices).createTransaction(any(), any());
 
         mockMvc.perform(post("/transaction/create")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))).andExpect(status().isOk())
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message", is("Transacción creada")))
                 .andExpect(jsonPath("$.status", is(201)));
 
-        verify(transactionServices).createTransaction(request);
+        verify(transactionServices).createTransaction(any(), any());
     }
 
     @Test
@@ -69,19 +70,19 @@ public class TransactionControllerCreateTest extends TransactionControllerBase {
                 "test concept",
                 6.99,
                 null,
-                destination.getId(),
-                user.getId(),
+                origin.getAccountNumber(),
                 TransactionType.WITHDRAWAL);
 
-        doNothing().when(transactionServices).createTransaction(request);
+        doNothing().when(transactionServices).createTransaction(any(), any());
 
         mockMvc.perform(post("/transaction/create")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))).andExpect(status().isOk())
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message", is("Transacción creada")))
                 .andExpect(jsonPath("$.status", is(201)));
 
-        verify(transactionServices).createTransaction(request);
+        verify(transactionServices).createTransaction(any(), any());
     }
 
     @Test
@@ -89,20 +90,20 @@ public class TransactionControllerCreateTest extends TransactionControllerBase {
         CreateTransactionRequestDTO request = new CreateTransactionRequestDTO(
                 "test concept",
                 6.99,
-                destination.getId(),
-                origin.getId(),
-                user.getId(),
+                destination.getAccountNumber(),
+                origin.getAccountNumber(),
                 TransactionType.TRANSFER);
 
-        doNothing().when(transactionServices).createTransaction(request);
+        doNothing().when(transactionServices).createTransaction(any(), any());
 
         mockMvc.perform(post("/transaction/create")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))).andExpect(status().isOk())
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message", is("Transacción creada")))
                 .andExpect(jsonPath("$.status", is(201)));
 
-        verify(transactionServices).createTransaction(request);
+        verify(transactionServices).createTransaction(any(), any());
     }
 
     @Test
@@ -112,11 +113,10 @@ public class TransactionControllerCreateTest extends TransactionControllerBase {
                 6.99,
                 null,
                 null,
-                user.getId(),
                 TransactionType.DEPOSIT);
 
         doThrow(new IllegalArgumentException())
-                .when(transactionServices).createTransaction(request);
+                .when(transactionServices).createTransaction(any(), any());
 
         mockMvc.perform(post("/transaction/create")
                 .contentType(MediaType.APPLICATION_JSON)

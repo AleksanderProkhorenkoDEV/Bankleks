@@ -11,6 +11,7 @@ export class InputForm extends LitElement {
     @property({ type: String }) label: string = ''
     @property({ type: String }) type: InputType = "text"
     @property({ type: String }) placeholder: string = ''
+    @property({ type: Number }) step: number = 1
 
     @state() private _error: string = '';
     @state() private _value: string = '';
@@ -43,7 +44,8 @@ export class InputForm extends LitElement {
                     id=${this.name}
                     type=${this.type}
                     placeholder=${this.placeholder}
-                    .value=${this._value}
+                    value=${this._value}
+                    step=${this.step}
                     ?data-error=${!!this._error}
                     @input=${this.handleInput}
                 />

@@ -26,6 +26,11 @@ public class AccountService {
         return accountRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
+    public Account getAccountByIban(String iban) {
+        return accountRepository.findByAccountNumber(iban)
+                .orElseThrow(EntityNotFoundException::new);
+    }
+
     /**
      * Cuenta el total de cuentas, genera un número aleatorio entre 0 y la cantidad
      * de registros -1

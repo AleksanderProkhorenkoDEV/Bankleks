@@ -6,6 +6,13 @@ export class SignInPage extends LitElement {
     render() {
         return html`
             <layout-auth>
+                <img 
+                    src="/candado.png" 
+                    width="350px" 
+                    alt="candado representativo de autorización"
+                    loading="lazy"
+                    slot="image"
+                />
                 <signin-form></signin-form>
             </layout-auth>
         `

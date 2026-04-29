@@ -2,8 +2,6 @@ import { css } from "lit";
 
 export const accountStyles = css`
     :host {
-        display: block;
-        height: 100%;
         overflow-y: auto;
         background-color: var(--background-color);
         font-family: var(--font-main);
