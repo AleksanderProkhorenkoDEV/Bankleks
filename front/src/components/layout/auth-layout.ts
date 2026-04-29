@@ -13,12 +13,7 @@ export class LayoutAuth extends LitElement {
         return html`
             <section class="auth">
                 <article class="auth__item">
-                    <img 
-                        src="/candado.png" 
-                        width="350px" 
-                        alt="candado representativo de autorización"
-                        loading="lazy"
-                    />
+                    <slot name="image"></slot>
                 </article>
                 <article class="auth__item">
                     <slot></slot>
