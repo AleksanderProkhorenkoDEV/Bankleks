@@ -5,9 +5,16 @@ import { customElement } from "lit/decorators.js";
 export class TransactionPage extends LitElement {
     render() {
         return html`
-            <section>
-                <h1>Transaciones</h1>
-            </section>
+            <layout-auth>
+                <img 
+                    src="/transacciones.png" 
+                    width="350px" 
+                    alt="candado representativo de autorización"
+                    loading="lazy"
+                    slot="image"
+                />
+                <transaction-form></transaction-form>
+            </layout-auth>
         `
     }
 }
