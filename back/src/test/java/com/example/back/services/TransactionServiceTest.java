@@ -64,10 +64,12 @@ public class TransactionServiceTest {
     @Test
     void shouldReturnPageOfTransactions() {
         Page<Transaction> page = new PageImpl<>(List.of());
-        when(transactionRepository.findAllByUserId(1L, PageRequest.of(0, 25)))
+
+        when(userService.getUser(user.getEmail())).thenReturn(user);
+        when(transactionRepository.findAllByUserId(user.getId(), PageRequest.of(0, 25)))
                 .thenReturn(page);
 
-        Page<Transaction> result = transactionServices.getAllTransaction(1L, 0, 25);
+        Page<Transaction> result = transactionServices.getAllTransaction(user.getEmail(), 0, 25);
 
         assertEquals(page, result);
     }
