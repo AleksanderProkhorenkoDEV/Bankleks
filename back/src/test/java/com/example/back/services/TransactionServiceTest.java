@@ -72,7 +72,6 @@ public class TransactionServiceTest {
         assertEquals(page, result);
     }
 
-
     @Test
     void shouldReturnTransactionById() {
         Transaction transaction = new Transaction("concept", 10.0, LocalDate.now(),
@@ -91,17 +90,15 @@ public class TransactionServiceTest {
         assertThrows(EntityNotFoundException.class, () -> transactionServices.getTransactionById(99L));
     }
 
-
-
     @Test
     void shouldCreateDepositTransaction() {
         CreateTransactionRequestDTO request = new CreateTransactionRequestDTO(
-                "deposit", 50.0, destination.getId(), null, user.getId(), TransactionType.DEPOSIT);
+                "deposit", 50.0, destination.getAccountNumber(), null, TransactionType.DEPOSIT);
 
-        when(userService.getUser(user.getId())).thenReturn(user);
-        when(accountService.getAccount(destination.getId())).thenReturn(destination);
+        when(userService.getUser(user.getEmail())).thenReturn(user);
+        when(accountService.getAccountByIban(destination.getAccountNumber())).thenReturn(destination);
 
-        transactionServices.createTransaction(request);
+        transactionServices.createTransaction(request, user.getEmail());
 
         verify(accountService).addBalance(destination, 50.0);
         verify(transactionRepository).save(any(Transaction.class));
@@ -110,23 +107,23 @@ public class TransactionServiceTest {
     @Test
     void shouldThrowIfDestinationIsNullOnDeposit() {
         CreateTransactionRequestDTO request = new CreateTransactionRequestDTO(
-                "deposit", 50.0, null, null, user.getId(), TransactionType.DEPOSIT);
+                "deposit", 50.0, null, null, TransactionType.DEPOSIT);
 
-        when(userService.getUser(user.getId())).thenReturn(user);
+        when(userService.getUser(user.getEmail())).thenReturn(user);
 
-        assertThrows(IllegalArgumentException.class, () -> transactionServices.createTransaction(request));
+        assertThrows(IllegalArgumentException.class,
+                () -> transactionServices.createTransaction(request, user.getEmail()));
     }
-
 
     @Test
     void shouldCreateWithdrawalTransaction() {
         CreateTransactionRequestDTO request = new CreateTransactionRequestDTO(
-                "withdrawal", 50.0, null, origin.getId(), user.getId(), TransactionType.WITHDRAWAL);
+                "withdrawal", 50.0, null, origin.getAccountNumber(), TransactionType.WITHDRAWAL);
 
-        when(userService.getUser(user.getId())).thenReturn(user);
-        when(accountService.getAccount(origin.getId())).thenReturn(origin);
+        when(userService.getUser(user.getEmail())).thenReturn(user);
+        when(accountService.getAccountByIban(origin.getAccountNumber())).thenReturn(origin);
 
-        transactionServices.createTransaction(request);
+        transactionServices.createTransaction(request, user.getEmail());
 
         verify(accountService).subtractBalance(origin, 50.0);
         verify(transactionRepository).save(any(Transaction.class));
@@ -135,24 +132,24 @@ public class TransactionServiceTest {
     @Test
     void shouldThrowIfOriginIsNullOnWithdrawal() {
         CreateTransactionRequestDTO request = new CreateTransactionRequestDTO(
-                "withdrawal", 50.0, null, null, user.getId(), TransactionType.WITHDRAWAL);
+                "withdrawal", 50.0, null, null, TransactionType.WITHDRAWAL);
 
-        when(userService.getUser(user.getId())).thenReturn(user);
+        when(userService.getUser(user.getEmail())).thenReturn(user);
 
-        assertThrows(IllegalArgumentException.class, () -> transactionServices.createTransaction(request));
+        assertThrows(IllegalArgumentException.class,
+                () -> transactionServices.createTransaction(request, user.getEmail()));
     }
-
 
     @Test
     void shouldCreateTransferTransaction() {
         CreateTransactionRequestDTO request = new CreateTransactionRequestDTO(
-                "transfer", 50.0, destination.getId(), origin.getId(), user.getId(), TransactionType.TRANSFER);
+                "transfer", 50.0, destination.getAccountNumber(), origin.getAccountNumber(), TransactionType.TRANSFER);
 
-        when(userService.getUser(user.getId())).thenReturn(user);
-        when(accountService.getAccount(destination.getId())).thenReturn(destination);
-        when(accountService.getAccount(origin.getId())).thenReturn(origin);
+        when(userService.getUser(user.getEmail())).thenReturn(user);
+        when(accountService.getAccountByIban(destination.getAccountNumber())).thenReturn(destination);
+        when(accountService.getAccountByIban(origin.getAccountNumber())).thenReturn(origin);
 
-        transactionServices.createTransaction(request);
+        transactionServices.createTransaction(request, user.getEmail());
 
         verify(accountService).subtractBalance(origin, 50.0);
         verify(accountService).addBalance(destination, 50.0);
@@ -162,25 +159,26 @@ public class TransactionServiceTest {
     @Test
     void shouldThrowIfOriginIsNullOnTransfer() {
         CreateTransactionRequestDTO request = new CreateTransactionRequestDTO(
-                "transfer", 50.0, destination.getId(), null, user.getId(), TransactionType.TRANSFER);
+                "transfer", 50.0, destination.getAccountNumber(), null, TransactionType.TRANSFER);
 
-        when(userService.getUser(user.getId())).thenReturn(user);
-        when(accountService.getAccount(destination.getId())).thenReturn(destination);
+        when(userService.getUser(user.getEmail())).thenReturn(user);
+        when(accountService.getAccountByIban(destination.getAccountNumber())).thenReturn(destination);
 
-        assertThrows(IllegalArgumentException.class, () -> transactionServices.createTransaction(request));
+        assertThrows(IllegalArgumentException.class,
+                () -> transactionServices.createTransaction(request, user.getEmail()));
     }
 
     @Test
     void shouldThrowIfDestinationIsNullOnTransfer() {
         CreateTransactionRequestDTO request = new CreateTransactionRequestDTO(
-                "transfer", 50.0, null, origin.getId(), user.getId(), TransactionType.TRANSFER);
+                "transfer", 50.0, null, origin.getAccountNumber(), TransactionType.TRANSFER);
 
-        when(userService.getUser(user.getId())).thenReturn(user);
-        when(accountService.getAccount(origin.getId())).thenReturn(origin);
+        when(userService.getUser(user.getEmail())).thenReturn(user);
+        when(accountService.getAccountByIban(origin.getAccountNumber())).thenReturn(origin);
 
-        assertThrows(IllegalArgumentException.class, () -> transactionServices.createTransaction(request));
+        assertThrows(IllegalArgumentException.class,
+                () -> transactionServices.createTransaction(request, user.getEmail()));
     }
-
 
     @Test
     void shouldUpdateConcept() {
