@@ -174,6 +174,7 @@ export class DataTable extends LitElement {
     @property({ type: Number }) currentPage: number = 0;
     @property({ type: Number }) totalPages: number = 0;
     @property({ type: Boolean }) showActions: boolean = false;
+    @property({ type: Boolean }) hideEdit: boolean = false;
 
     static styles = [
         tableStyles
@@ -229,9 +230,10 @@ export class DataTable extends LitElement {
                                     ${this.showActions ? html`
                                         <td>
                                             <div class="actions">
-                                                <button-form type=${"button"} variant="update" @click=${() => this._emitEdit(row)}>
+                                                ${this.hideEdit ? nothing : html`<button-form type=${"button"} variant="update" @click=${() => this._emitEdit(row)}>
                                                     ✎
-                                                </button-form>
+                                                </button-form>`
+                        }
                                                 ${user?.role === "ADMINISTRATOR" ? html`<button-form type="button" variant="danger" @click=${() => this._emitDelete(row)}>
                                                     🗑
                                                 </button-form>` : nothing
