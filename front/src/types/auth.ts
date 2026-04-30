@@ -1,7 +1,7 @@
 export interface User {
     id: number,
     name: string,
-    role: 'ROLE_CLIENT' | 'ROLE_ADMINISTRATOR'
+    role: 'CLIENT' | 'ADMINISTRATOR'
 }
 
 export interface ServiceResponse<T = void> {
