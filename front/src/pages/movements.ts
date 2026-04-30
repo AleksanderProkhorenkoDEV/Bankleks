@@ -1,9 +1,9 @@
 import type { TransactionResponse } from "../types/transactions";
 import type { TableColumn } from "../components/table/table";
 import { movementsStyles } from "./styles/movements.styles";
-import { deleteTransaction, getTransactions } from "../services/transaction";
+import { deleteTransaction, getTransactions, updateTransaction } from "../services/transaction";
 import { customElement, state } from "lit/decorators.js";
-import { html, LitElement } from "lit";
+import { html, LitElement, nothing } from "lit";
 import { authStore } from "../store/auth";
 
 
@@ -14,6 +14,7 @@ export class MovementsPage extends LitElement {
     @state() private _currentPage: number = 0;
     @state() private _totalPages: number = 0;
     @state() private _loading: boolean = true;
+    @state() private _editingTransaction: TransactionResponse | null = null;
 
     static styles = [
         movementsStyles
@@ -40,12 +41,36 @@ export class MovementsPage extends LitElement {
         this._load(e.detail.page);
     }
 
-    private _handleEdit(e: CustomEvent) {
-        console.log('editar', e.detail.row);
-        // TODO: abrir modal de edición
+    // abre el modal
+    private _handleOpenEdit = (e: CustomEvent) => {
+        this._editingTransaction = e.detail.row;
     }
 
-    private async _handleDelete(e: CustomEvent) {
+    // se llama cuando el modal hace submit
+    private _handleModalSubmit = async (e: CustomEvent) => {
+        const { id, concept } = e.detail;
+        const { ok } = await updateTransaction(id, concept);
+
+        this.dispatchEvent(new CustomEvent('show-toast', {
+            detail: {
+                type: ok ? 'success' : 'error',
+                message: ok ? 'Concepto actualizado.' : 'No se pudo actualizar.'
+            },
+            bubbles: true,
+            composed: true
+        }));
+
+        if (ok) {
+            this._editingTransaction = null;
+            await this._load(this._currentPage);
+        }
+    }
+
+    private _handleModalClose = () => {
+        this._editingTransaction = null;
+    }
+
+    private _handleDelete = async (e: CustomEvent) => {
         const { id } = e.detail.row;
 
         const { ok } = await deleteTransaction(id);
@@ -123,12 +148,23 @@ export class MovementsPage extends LitElement {
                             .totalPages=${this._totalPages}
                             showActions
                             @page-change=${this._handlePageChange}
-                            @row-edit=${this._handleEdit}
+                            @row-edit=${this._handleOpenEdit}
                             @row-delete=${this._handleDelete}
                         ></data-table>
                     `
             }
             </section>
+
+            ${this._editingTransaction ? html`
+                <edit-transaction-modal
+                    .transaction=${this._editingTransaction}
+                    @modal-close=${this._handleModalClose}
+                    @modal-submit=${this._handleModalSubmit}
+                >
+                </edit-transaction-modal>
+                `: 
+                nothing
+            }
         `;
     }
 }
