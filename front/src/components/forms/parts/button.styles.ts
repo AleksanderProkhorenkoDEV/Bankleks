@@ -52,6 +52,19 @@ export const buttonStyles = css`
         )
     }
 
+    :host([variant="update"]) button {
+        background: var( --color-update);
+        color: var(--text-foreground);
+    }
+
+    :host([variant="update"]) button:hover{
+        background: color-mix(
+            in srgb,
+            var( --color-update) 85%,
+            var(--background-color)
+        )
+    }
+
     button:disabled {
         opacity: 0.5;
         cursor: not-allowed;
