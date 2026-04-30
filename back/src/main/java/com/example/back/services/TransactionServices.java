@@ -35,7 +35,7 @@ public class TransactionServices {
     public Page<Transaction> getAllTransaction(String email, Integer page, Integer sizePerPage) {
         User user = userService.getUser(email);
         Pageable pageable = PageRequest.of(page, sizePerPage);
-        return transactionRepository.findAllByUserId(user.getId(), pageable);
+        return transactionRepository.findAllByUserInvolved(user, pageable);
     }
 
     public Transaction getTransactionById(Long id) {

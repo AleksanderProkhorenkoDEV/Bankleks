@@ -66,7 +66,7 @@ public class TransactionServiceTest {
         Page<Transaction> page = new PageImpl<>(List.of());
 
         when(userService.getUser(user.getEmail())).thenReturn(user);
-        when(transactionRepository.findAllByUserId(user.getId(), PageRequest.of(0, 25)))
+        when(transactionRepository.findAllByUserInvolved(user, PageRequest.of(0, 25)))
                 .thenReturn(page);
 
         Page<Transaction> result = transactionServices.getAllTransaction(user.getEmail(), 0, 25);

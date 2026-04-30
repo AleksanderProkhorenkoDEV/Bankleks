@@ -10,11 +10,13 @@ public class LoginResponseDTO {
     private String userName;
     private String rol;
     private Long id;
+    private String iban;
 
-    public LoginResponseDTO(String token, String userName, String rol, Long id) {
+    public LoginResponseDTO(String token, String userName, String rol, Long id, String iban) {
         this.token = token;
         this.userName = userName;
         this.rol = rol;
         this.id = id;
+        this.iban = iban;
     }
 }
