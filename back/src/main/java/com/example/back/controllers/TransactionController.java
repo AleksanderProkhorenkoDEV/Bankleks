@@ -19,8 +19,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -42,7 +44,8 @@ public class TransactionController {
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "25") Integer size) {
 
-        Page<TransactionResponseDTO> dtoPage = transactionServices.getAllTransaction(userDetails.getUsername(), page, size)
+        Page<TransactionResponseDTO> dtoPage = transactionServices
+                .getAllTransaction(userDetails.getUsername(), page, size)
                 .map(transactionMapper::toDto);
 
         return ResponseEntity.ok(new PageResponseDTO<>(dtoPage));
@@ -61,6 +64,14 @@ public class TransactionController {
             @Valid @RequestBody UpdateConceptRequestDTO request) {
         transactionServices.updateConcept(request);
         return ResponseEntity.ok(new GlobalResponseDTO("Transacción actualizada", HttpStatus.NO_CONTENT.value()));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<GlobalResponseDTO> deleteTransaction(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        transactionServices.deleteTransaction(id);
+        return ResponseEntity.ok(new GlobalResponseDTO("Transacción eliminada", HttpStatus.OK.value()));
     }
 
 }
