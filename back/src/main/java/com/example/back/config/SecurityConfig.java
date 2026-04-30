@@ -56,7 +56,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login", "/auth/register", "/auth/logout", "/auth/refresh").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/transaction/**").hasAuthority("ADMINISTRATOR")
-                        .requestMatchers(HttpMethod.DELETE, "/auth/**").hasAuthority("ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.DELETE, "/admin/**").hasAuthority("ADMINISTRATOR")
                         .anyRequest().authenticated())
 
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
