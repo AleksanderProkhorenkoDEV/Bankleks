@@ -1,7 +1,11 @@
 package com.example.back.entities.transactions;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.example.back.entities.user.User;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -9,6 +13,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.Data;
 
@@ -30,14 +35,23 @@ public class Account {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @OneToMany(mappedBy = "accountOrigin", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Transaction> originTransactions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "accountDestination", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Transaction> destinationTransactions = new ArrayList<>();
+
     public Account() {
     }
 
     public Account(Double balance, User user, String accountNumber) {
 
-        if(balance == null) throw new IllegalArgumentException("El balance no puede ser nulo");
-        if(user == null) throw new IllegalArgumentException("El user no puede ser nulo");
-        if(accountNumber == null) throw new IllegalArgumentException("El número no puede ser nulo");
+        if (balance == null)
+            throw new IllegalArgumentException("El balance no puede ser nulo");
+        if (user == null)
+            throw new IllegalArgumentException("El user no puede ser nulo");
+        if (accountNumber == null)
+            throw new IllegalArgumentException("El número no puede ser nulo");
 
         this.balance = balance;
         this.user = user;

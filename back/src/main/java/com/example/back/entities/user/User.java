@@ -1,7 +1,9 @@
 package com.example.back.entities.user;
 
 import com.example.back.entities.auth.Role;
+import com.example.back.entities.transactions.Account;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -10,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import lombok.Data;
 
 @Data
@@ -33,15 +36,22 @@ public class User {
     @JoinColumn(name = "role_id")
     private Role role;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Account account;
+    
     public User() {
     }
 
     public User(String name, String email, String password, Role rol) {
 
-        if(name == null) throw new IllegalArgumentException("El nombre no puede ser nulo");
-        if(email == null) throw new IllegalArgumentException("El email no puede ser nulo");
-        if(password == null) throw new IllegalArgumentException("El password no puede ser nulo");
-        if(rol == null) throw new IllegalArgumentException("El rol no puede ser nulo");
+        if (name == null)
+            throw new IllegalArgumentException("El nombre no puede ser nulo");
+        if (email == null)
+            throw new IllegalArgumentException("El email no puede ser nulo");
+        if (password == null)
+            throw new IllegalArgumentException("El password no puede ser nulo");
+        if (rol == null)
+            throw new IllegalArgumentException("El rol no puede ser nulo");
 
         this.name = name;
         this.email = email;

@@ -3,6 +3,7 @@ package com.example.back.repositories;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -20,6 +21,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             "WHERE t.user = :user " +
             "OR ad.user = :user")
     Page<Transaction> findAllByUserInvolved(@Param("user") User user, Pageable pageable);
+
+    @Modifying
+    @Query("UPDATE Transaction t SET t.user = null WHERE t.user.id = :userId")
+    void nullifyUserReferences(@Param("userId") Long userId);
 
     Optional<Transaction> findById(Long id);
 }
