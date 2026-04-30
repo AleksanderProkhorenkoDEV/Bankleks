@@ -4,36 +4,8 @@ import { movementsStyles } from "./styles/movements.styles";
 import { getTransactions } from "../services/transaction";
 import { customElement, state } from "lit/decorators.js";
 import { html, LitElement } from "lit";
+import { authStore } from "../store/auth";
 
-
-
-
-const COLUMNS: TableColumn[] = [
-    { key: 'concept', label: 'Concepto' },
-    {
-        key: 'transactionType', label: 'Tipo',
-        render: (value) => {
-            const map: Record<string, string> = {
-                DEPOSIT: 'Ingreso',
-                WITHDRAWAL: 'Retirada',
-                TRANSFER: 'Transferencia'
-            };
-            return map[value] ?? value;
-        }
-    },
-    {
-        key: 'amount', label: 'Cantidad',
-        render: (value) => `${value.toFixed(2)}€`
-    },
-    {
-        key: 'transactionDate', label: 'Fecha',  
-        render: (value: string) => {
-            const [year, month, day] = value.split('-').map(Number);
-            const d = new Date(year, month - 1, day); // evita problemas de timezone
-            return d.toLocaleDateString('es-ES');
-        }
-    },
-];
 
 @customElement("movements-page")
 export class MovementsPage extends LitElement {
@@ -79,6 +51,52 @@ export class MovementsPage extends LitElement {
     }
 
     render() {
+
+        const { user } = authStore.getState();
+        const userIban = user?.iban;
+
+        const COLUMNS: TableColumn[] = [
+            { key: 'concept', label: 'Concepto' },
+            {
+                key: 'transactionType', label: 'Tipo',
+                render: (value, row) => {
+                    if (value === 'TRANSFER') {
+                        const sent = row.originAccount?.accountNumber === userIban;
+                        return sent ? '↑ Transferencia enviada' : '↓ Transferencia recibida';
+                    }
+                    const map: Record<string, string> = {
+                        DEPOSIT: '↓ Ingreso',
+                        WITHDRAWAL: '↑ Retirada',
+                    };
+                    return map[value] ?? value;
+                }
+            },
+            {
+                key: 'amount', label: 'Cantidad',
+                render: (value, row) => {
+                    let sent: boolean;
+
+                    if (row.transactionType === 'TRANSFER') {
+                        sent = row.originAccount?.accountNumber === userIban;
+                    } else {
+                        sent = row.transactionType === 'WITHDRAWAL';
+                    }
+
+                    const sign = sent ? '-' : '+';
+                    const color = sent ? 'var(--color-danger)' : 'var(--color-tertiary)';
+                    return html`<span style="color:${color}; font-weight:600">${sign}${value.toFixed(2)}€</span>`;
+                }
+            },
+            {
+                key: 'transactionDate', label: 'Fecha',
+                render: (value: string) => {
+                    const [year, month, day] = value.split('-').map(Number);
+                    return new Date(year, month - 1, day).toLocaleDateString('es-ES');
+                }
+            },
+        ];
+
+
         return html`
             <section class="page">
                 <h1>Movimientos</h1>
