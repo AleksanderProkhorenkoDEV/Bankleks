@@ -40,11 +40,11 @@ export const tableStyles = css`
     }
 
     tbody tr:nth-child(even) {
-        background: var(--color-tertiary);
+        background: var(--background-color);
     }
 
     tbody tr:nth-child(even) td {
-        color: var(--text-foreground);
+        color: var(--color-border);
     }
 
     tbody tr:hover {
@@ -54,7 +54,7 @@ export const tableStyles = css`
     tbody td {
         padding: 0.85rem 1.25rem;
         font-size: 0.875rem;
-        color: var(--text-primary);
+        color: var(--color-border);
         border-bottom: 1px solid var(--background-color);
     }
 
