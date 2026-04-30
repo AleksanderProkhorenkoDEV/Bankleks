@@ -1,7 +1,7 @@
 import type { TransactionResponse } from "../types/transactions";
 import type { TableColumn } from "../components/table/table";
 import { movementsStyles } from "./styles/movements.styles";
-import { getTransactions } from "../services/transaction";
+import { deleteTransaction, getTransactions } from "../services/transaction";
 import { customElement, state } from "lit/decorators.js";
 import { html, LitElement } from "lit";
 import { authStore } from "../store/auth";
@@ -45,9 +45,21 @@ export class MovementsPage extends LitElement {
         // TODO: abrir modal de edición
     }
 
-    private _handleDelete(e: CustomEvent) {
-        console.log('eliminar', e.detail.row);
-        // TODO: confirmar y llamar al servicio
+    private async _handleDelete(e: CustomEvent) {
+        const { id } = e.detail.row;
+
+        const { ok } = await deleteTransaction(id);
+
+        this.dispatchEvent(new CustomEvent('show-toast', {
+            detail: {
+                type: ok ? 'success' : 'error',
+                message: ok ? 'Transacción eliminada.' : 'No se pudo eliminar la transacción.'
+            },
+            bubbles: true,
+            composed: true
+        }));
+
+        if (ok) await this._load(this._currentPage);
     }
 
     render() {
