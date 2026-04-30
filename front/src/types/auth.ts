@@ -2,6 +2,7 @@ export interface User {
     id: number,
     name: string,
     role: 'CLIENT' | 'ADMINISTRATOR'
+    iban: string,
 }
 
 export interface ServiceResponse<T = void> {
@@ -31,5 +32,6 @@ export interface SignInResponse {
     id: number,
     userName: string;
     token: string;
-    rol: 'ROLE_CLIENT' | 'ROLE_ADMINISTRATOR';
+    rol: 'CLIENT' | 'ADMINISTRATOR';
+    iban: string;
 }
