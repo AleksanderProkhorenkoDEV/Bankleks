@@ -43,3 +43,16 @@ export const deleteTransaction = async (id: number): Promise<ServiceResponse> =>
         return { ok: false, error: message };
     }
 }
+
+export const updateTransaction = async (id: number, concept: string): Promise<ServiceResponse> => {
+    try {
+        await request(`/transaction/update`, {
+            method: 'PATCH',
+            body: JSON.stringify({ transactionId: id, concept })
+        });
+        return { ok: true };
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Error desconocido';
+        return { ok: false, error: message };
+    }
+}
