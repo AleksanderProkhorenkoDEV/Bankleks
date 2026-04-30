@@ -99,4 +99,36 @@ public class TransactionServices {
 
         transaction.setConcept(request.getConcept());
     }
+
+    @Transactional
+    public void deleteTransaction(Long id) {
+        Transaction transaction = transactionRepository.findById(id)
+                .orElseThrow(EntityNotFoundException::new);
+
+        switch (transaction.getType()) {
+            case DEPOSIT -> {
+                // el ingreso sumó dinero al destino → lo quitamos
+                if (transaction.getAccountDestination() != null) {
+                    accountService.subtractBalance(transaction.getAccountDestination(), transaction.getAmount());
+                }
+            }
+            case WITHDRAWAL -> {
+                // la retirada quitó dinero al origen → lo devolvemos
+                if (transaction.getAccountOrigin() != null) {
+                    accountService.addBalance(transaction.getAccountOrigin(), transaction.getAmount());
+                }
+            }
+            case TRANSFER -> {
+                // la transferencia quitó del origen y sumó al destino → revertimos ambos
+                if (transaction.getAccountOrigin() != null) {
+                    accountService.addBalance(transaction.getAccountOrigin(), transaction.getAmount());
+                }
+                if (transaction.getAccountDestination() != null) {
+                    accountService.subtractBalance(transaction.getAccountDestination(), transaction.getAmount());
+                }
+            }
+        }
+
+        transactionRepository.delete(transaction);
+    }
 }

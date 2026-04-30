@@ -33,3 +33,13 @@ export const getTransactions = async (page: number = 0, size: number = 25): Prom
         return { ok: false, error: message };
     }
 }
+
+export const deleteTransaction = async (id: number): Promise<ServiceResponse> => {
+    try {
+        await request(`/transaction/${id}`, { method: 'DELETE' });
+        return { ok: true };
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Error desconocido';
+        return { ok: false, error: message };
+    }
+}
