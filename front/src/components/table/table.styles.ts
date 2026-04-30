@@ -67,29 +67,6 @@ export const tableStyles = css`
         gap: 0.5rem;
     }
 
-    .btn-action {
-        width: 32px;
-        height: 32px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: opacity 0.15s;
-    }
-
-    .btn-action:hover { opacity: 0.8; }
-
-    .btn-edit {
-        background: var(--color-update);
-        color: white;
-    }
-
-    .btn-delete {
-        background: var(--color-danger);
-        color: white;
-    }
 
     /* PAGINATION */
     .pagination {
