@@ -1,6 +1,7 @@
 import { html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { tableStyles } from "./table.styles";
+import { authStore } from "../../store/auth";
 
 export interface TableColumn {
     key: string;
@@ -47,6 +48,9 @@ export class DataTable extends LitElement {
     }
 
     render() {
+
+        const { user } = authStore.getState()
+
         return html`
             <div class="table-wrapper">
                 <table>
@@ -69,12 +73,13 @@ export class DataTable extends LitElement {
                                     ${this.showActions ? html`
                                         <td>
                                             <div class="actions">
-                                                <button class="btn-action btn-edit" @click=${() => this._emitEdit(row)}>
+                                                <button-form type=${"button"} variant="update" @click=${() => this._emitEdit(row)}>
                                                     ✎
-                                                </button>
-                                                <button class="btn-action btn-delete" @click=${() => this._emitDelete(row)}>
+                                                </button-form>
+                                                ${user?.role === "ADMINISTRATOR" ? html`<button-form type="button" variant="danger" @click=${() => this._emitDelete(row)}>
                                                     🗑
-                                                </button>
+                                                </button-form>` : nothing
+                        }
                                             </div>
                                         </td>
                                     ` : nothing}
