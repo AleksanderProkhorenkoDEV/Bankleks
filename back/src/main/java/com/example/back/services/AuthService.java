@@ -79,10 +79,11 @@ public class AuthService {
 
         String token = jwtService.generateToken(user.getEmail(), role);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getEmail());
+        String iban = accountService.getAccount(user.getId()).getAccountNumber();
 
         createRefreshCookie(refreshToken.getToken(), response);
 
-        return new LoginResponseDTO(token, user.getEmail(), role, user.getId());
+        return new LoginResponseDTO(token, user.getEmail(), role, user.getId(), iban);
     }
 
     private void createRefreshCookie(String refreshToken, HttpServletResponse response) {

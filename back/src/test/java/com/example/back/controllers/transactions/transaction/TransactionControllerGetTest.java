@@ -50,31 +50,29 @@ public class TransactionControllerGetTest extends TransactionControllerBase {
 
         Page<Transaction> transactionPage = new PageImpl<>(List.of(transaction));
 
-        when(transactionServices.getAllTransaction(user.getId(), 0, 25))
+        when(transactionServices.getAllTransaction(user.getEmail(), 0, 25))
                 .thenReturn(transactionPage);
 
         when(transactionMapper.toDto(transaction))
                 .thenReturn(new TransactionResponseDTO());
 
-        mockMvc.perform(get("/transaction/{id}", user.getId()))
+        mockMvc.perform(get("/transaction"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray())
                 .andExpect(jsonPath("$.content.length()").value(1))
-                .andExpect(jsonPath("$.page").value(0))
-                .andExpect(jsonPath("$.size").value(1))
+                .andExpect(jsonPath("$.currentPage").value(0))
                 .andExpect(jsonPath("$.totalElements").value(1))
-                .andExpect(jsonPath("$.totalPages").value(1))
-                .andExpect(jsonPath("$.last").value(true));
+                .andExpect(jsonPath("$.totalPages").value(1));
     }
 
     @Test
     void shouldReturnEmptyPageIfUserHasNoTransactions() throws Exception {
         Page<Transaction> emptyPage = new PageImpl<>(List.of());
 
-        when(transactionServices.getAllTransaction(user.getId(), 0, 25))
+        when(transactionServices.getAllTransaction(user.getEmail(), 0, 25))
                 .thenReturn(emptyPage);
 
-        mockMvc.perform(get("/transaction/{id}", user.getId()))
+        mockMvc.perform(get("/transaction"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray())
                 .andExpect(jsonPath("$.content.length()").value(0))

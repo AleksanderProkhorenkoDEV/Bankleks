@@ -6,7 +6,7 @@ import { html, LitElement } from "lit";
 export class ButtonForm extends LitElement {
 
 
-    @property() variant: 'primary' | 'secondary' | 'danger' = 'primary';
+    @property() variant: 'primary' | 'secondary' | 'danger' | 'update' = 'primary';
     @property() type: 'submit' | 'button' | 'reset' = 'button';
     @property({ type: Boolean }) disabled: boolean = false;
 

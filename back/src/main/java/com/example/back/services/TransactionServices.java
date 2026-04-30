@@ -32,9 +32,10 @@ public class TransactionServices {
         this.userService = userService;
     }
 
-    public Page<Transaction> getAllTransaction(Long id, Integer page, Integer sizePerPage) {
+    public Page<Transaction> getAllTransaction(String email, Integer page, Integer sizePerPage) {
+        User user = userService.getUser(email);
         Pageable pageable = PageRequest.of(page, sizePerPage);
-        return transactionRepository.findAllByUserId(id, pageable);
+        return transactionRepository.findAllByUserInvolved(user, pageable);
     }
 
     public Transaction getTransactionById(Long id) {
