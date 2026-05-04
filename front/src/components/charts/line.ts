@@ -1,4 +1,4 @@
-import { customElement, property, query } from 'lit/decorators.js';
+import { customElement, property, query, state } from 'lit/decorators.js';
 import type { BalancePoint } from '../../types/account';
 import { lineStyle } from './line.style';
 import type { ECharts } from 'echarts';
@@ -9,6 +9,8 @@ import * as echarts from 'echarts';
 export class LineChart extends LitElement {
 
     @property({ type: Array }) points: BalancePoint[] = [];
+    @state() _resizeObserver: ResizeObserver | null = null;
+
 
     @query('.chart-container') _container!: HTMLDivElement;
 
@@ -22,6 +24,11 @@ export class LineChart extends LitElement {
         if (this.points.length >= 2) {
             this._chart = echarts.init(this._container);
             this._setOptions();
+
+            this._resizeObserver = new ResizeObserver(() => {
+                this._chart?.resize();
+            });
+            this._resizeObserver.observe(this._container);
         }
     }
 
@@ -36,6 +43,7 @@ export class LineChart extends LitElement {
 
     disconnectedCallback() {
         super.disconnectedCallback();
+        this._resizeObserver?.disconnect();
         this._chart?.dispose();
         this._chart = null;
     }

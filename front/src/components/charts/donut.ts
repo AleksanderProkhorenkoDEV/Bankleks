@@ -1,4 +1,4 @@
-import { customElement, property, query } from 'lit/decorators.js';
+import { customElement, property, query, state } from 'lit/decorators.js';
 import { LitElement, html } from 'lit';
 import * as echarts from 'echarts';
 import type { ECharts } from 'echarts';
@@ -9,6 +9,8 @@ export class DonutChart extends LitElement {
 
     @property({ type: Number }) income: number = 0;
     @property({ type: Number }) expense: number = 0;
+    @state() _resizeObserver: ResizeObserver | null = null;
+
 
     @query('.chart-container') _container!: HTMLDivElement;
 
@@ -21,6 +23,11 @@ export class DonutChart extends LitElement {
     firstUpdated() {
         this._chart = echarts.init(this._container);
         this._setOptions();
+
+        this._resizeObserver = new ResizeObserver(() => {
+            this._chart?.resize();
+        });
+        this._resizeObserver.observe(this._container);
     }
 
     updated(changed: Map<string, unknown>) {
@@ -31,6 +38,7 @@ export class DonutChart extends LitElement {
 
     disconnectedCallback() {
         super.disconnectedCallback();
+        this._resizeObserver?.disconnect();
         this._chart?.dispose();
         this._chart = null;
     }
@@ -90,9 +98,6 @@ export class DonutChart extends LitElement {
     }
 
     render() {
-        const balance = this.income - this.expense;
-        const balanceColor = balance >= 0 ? '#0F766E' : '#A50024';
-
         return html`
             <div class="wrapper">
                 <div class="chart-container"></div>
@@ -118,7 +123,7 @@ export class DonutChart extends LitElement {
 }
 
 declare global {
-    interface HTMLElementTagNameMap { 
-        "donut-chart": DonutChart 
+    interface HTMLElementTagNameMap {
+        "donut-chart": DonutChart
     }
 }
