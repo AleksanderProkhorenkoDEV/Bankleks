@@ -80,7 +80,7 @@ export const navbarStyles = css`
         display: flex;
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 900px) {
         nav {
             display: none;
         }
