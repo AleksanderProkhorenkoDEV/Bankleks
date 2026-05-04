@@ -83,17 +83,17 @@ export class AppRoot extends LitElement {
     return html`
       <nav-bar></nav-bar>
       <main>
-        ${route ? route.component() : html`<p>404 not found</p>`}
+        ${route ? route.component() : html`<not-found-page></not-found-page>`}
 
         ${this.showToast
-              ? html`
+        ? html`
             <toast-message 
               variant=${this.toastType} 
               .content=${this.toastMessage}
             ></toast-message>
           `
-          : ''
-        }
+        : ''
+      }
       </main>
     `
   }

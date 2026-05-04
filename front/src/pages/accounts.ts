@@ -35,7 +35,7 @@ export class AccountPage extends LitElement {
     ]
 
     render() {
-        if (this._loading) return html`<p>Cargando...</p>`;
+        if (this._loading) return html`<loading-screen></loading-screen>`;
         if (this._error) return html`<p>${this._error}</p>`;
 
         const name = this._account?.userSummaryDTO.username ?? '';
