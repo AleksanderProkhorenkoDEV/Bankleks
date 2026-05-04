@@ -46,6 +46,7 @@ export class RegisterForm extends LitElement {
                 bubbles: true,
                 composed: true
             }));
+            return
         }
 
         this.dispatchEvent(new CustomEvent("show-toast", {
