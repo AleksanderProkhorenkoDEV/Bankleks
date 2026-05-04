@@ -22,4 +22,5 @@ export const baseStyles = css`
         box-shadow: 5px 12px 20px 5px rgba(0,0,0,0.2);
         
     }
+
 `
