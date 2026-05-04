@@ -77,7 +77,7 @@ export class PanelPage extends LitElement {
             <section class="page">
                 <h1>Panel de administración</h1>
 
-                ${this._loading ? html`<p>Cargando...</p>` : html`
+                ${this._loading ? html`<loading-screen></loading-screen>` : html`
                     <data-table
                         .hideEdit=${true}
                         .columns=${COLUMNS}
