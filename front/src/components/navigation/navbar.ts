@@ -9,19 +9,16 @@ import { LitElement, html } from 'lit';
 @customElement("nav-bar")
 export class NavBar extends LitElement {
 
-    @state() private _unsubscribe?: () => void
+    @state() private _unsubscribe?: () => void;
+    @state() private _menuOpen: boolean = false;
 
-    static styles? = [
-        navbarStyles,
-    ]
-
+    static styles = [navbarStyles];
 
     connectedCallback(): void {
-        super.connectedCallback()
-
+        super.connectedCallback();
         this._unsubscribe = authStore.subscribe(() => {
             this.requestUpdate();
-        })
+        });
     }
 
     disconnectedCallback() {
@@ -30,11 +27,20 @@ export class NavBar extends LitElement {
     }
 
     private _handleLogout = async () => {
-        const { ok, error } = await signOut();
-        console.log(ok, error);
+        await signOut();
+        this._menuOpen = false;
         window.dispatchEvent(new CustomEvent('navigate', {
             detail: { href: '/signIn' }
         }));
+    }
+
+    private _toggleMenu() {
+        this._menuOpen = !this._menuOpen;
+    }
+
+    private _navigate(href: string) {
+        this._menuOpen = false;
+        window.dispatchEvent(new CustomEvent('navigate', { detail: { href } }));
     }
 
     render() {
@@ -52,30 +58,49 @@ export class NavBar extends LitElement {
 
             return true;
         });
-       
+
 
         return html`
             <header>
                 <h1>Bankleks</h1>
+
                 <nav>
-                    ${visibleRoutes.map((item) => {
-            return html`
-                            <nav-link 
-                                .href=${item.href}
-                                .title=${item.title}
-                            >
-                            </nav-link>
-                        `
-        })}
-                    ${user && html`<button-form 
-                                        .type=${"button"} 
-                                        .variant=${"danger"}
-                                        @click=${this._handleLogout}
-                                    >
-                                        Cerrar sesión
-                                    </button-form>`}
+                    ${visibleRoutes.map(item => html`
+                        <nav-link .href=${item.href} .title=${item.title}></nav-link>
+                    `)}
+                    ${user ? html`
+                        <button-form .type=${"button"} .variant=${"danger"} @click=${this._handleLogout}>
+                            Cerrar sesión
+                        </button-form>
+                    ` : ''}
                 </nav>
+
+
+                <button
+                    class="hamburger ${this._menuOpen ? 'open' : ''}"
+                    @click=${this._toggleMenu}
+                    aria-label="Menú"
+                >
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
             </header>
+
+            <div class="mobile-menu ${this._menuOpen ? 'open' : ''}">
+                ${visibleRoutes.map(item => html` <nav-link  
+                        href=${item.href} 
+                        @click=${(e: Event) => { e.preventDefault(); this._navigate(item.href); }}
+                        .title=${item.title}
+                        >
+                        </nav-link>                                
+                `)}
+                ${user ? html`
+                    <button-form .type=${"button"} .variant=${"danger"} @click=${this._handleLogout}>
+                        Cerrar sesión
+                    </button-form>
+                ` : ''}
+            </div>
         `
     }
 }
