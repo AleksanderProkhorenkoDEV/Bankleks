@@ -106,4 +106,14 @@ export const tableStyles = css`
         color: var(--color-secondary);
         font-size: 0.875rem;
     }
+
+    @media (max-width: 600px) {
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    table {
+        min-width: 700px; /* o ajusta según tus columnas */
+    }
+}
 `
