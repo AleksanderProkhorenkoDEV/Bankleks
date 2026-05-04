@@ -139,7 +139,7 @@ export class MovementsPage extends LitElement {
                 <h1>Movimientos</h1>
 
                 ${this._loading
-                ? html`<p>Cargando...</p>`
+                ? html`<loading-screen></loading-screen>`
                 : html`
                         <data-table
                             .columns=${COLUMNS}
