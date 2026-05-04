@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import com.example.back.entities.transactions.Transaction;
 import com.example.back.entities.user.User;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -21,6 +22,11 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             "WHERE t.user = :user " +
             "OR ad.user = :user")
     Page<Transaction> findAllByUserInvolved(@Param("user") User user, Pageable pageable);
+
+    @Query("SELECT DISTINCT t FROM Transaction t " +
+            "LEFT JOIN t.accountDestination ad " +
+            "WHERE t.user = :user OR ad.user = :user")
+    List<Transaction> findAllByUserInvolvedNoPagination(@Param("user") User user);
 
     @Modifying
     @Query("UPDATE Transaction t SET t.user = null WHERE t.user.id = :userId")

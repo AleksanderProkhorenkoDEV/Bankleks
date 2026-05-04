@@ -5,3 +5,14 @@ export interface AccountResponse {
     accountNumber: string,
     userSummaryDTO: UserSummary
 }
+
+export interface BalancePoint {
+    date: string;
+    balance: number;
+}
+
+export interface AccountStats {
+    totalIncome: number;
+    totalExpense: number;
+    balancePointDTO: BalancePoint[];
+}
