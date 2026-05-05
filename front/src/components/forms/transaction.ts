@@ -1,10 +1,10 @@
-import { customElement, query, state } from "lit/decorators.js";
-import { html, LitElement, nothing } from "lit";
-import { baseStyles } from "./base.styles";
-import type { InputForm, SelectForm } from "./parts";
 import type { TransactionBody, TransactionFormData, TransactionType } from "../../types/transactions";
 import { isIBAN, isPositive, required, validate } from "../../utils/validatior";
+import { customElement, query, state } from "lit/decorators.js";
 import { createTransaction } from "../../services/transaction";
+import type { InputForm, SelectForm } from "./parts";
+import { html, LitElement, nothing } from "lit";
+import { baseStyles } from "./base.styles";
 
 
 @customElement("transaction-form")
@@ -76,14 +76,13 @@ export class TransactionForm extends LitElement {
 
         if (!this._validate()) return;
 
-        const { ok } = await createTransaction(this._buildBody());
+        const { error } = await createTransaction(this._buildBody());
+        if (error) {
+            this._dispatchToast("error", "No hemos podido realizar la transacción.")
+            return
+        }
 
-        this._dispatchToast(
-            ok ? 'success' : 'error',
-            ok ? 'Transacción realizada correctamente.' : 'No hemos podido realizar la transacción.'
-        );
-
-        this._formData = { concept: "", amount: "0.00", originIban: "", destinationIban: "", type: "DEPOSIT" }
+        this._dispatchToast("success", "Transacción creada correctamente")
     }
 
 
