@@ -54,6 +54,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/auth/login", "/auth/register", "/auth/logout", "/auth/refresh").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/transaction/**").hasAuthority("ADMINISTRATOR")
                         .requestMatchers(HttpMethod.DELETE, "/admin/**").hasAuthority("ADMINISTRATOR")
