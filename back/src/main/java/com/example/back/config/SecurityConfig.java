@@ -20,6 +20,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.example.back.services.UserDetailsServiceImpl;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 @Configuration
 public class SecurityConfig {
     private final JwtAuthFilter jwtFilter;
@@ -63,7 +65,17 @@ public class SecurityConfig {
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(ex -> ex.authenticationEntryPoint(new JwtAuthenticationEntryPoint()))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            String path = request.getServletPath();
+                            if (path.startsWith("/auth/")) {
+                                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            } else {
+                                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                                response.setContentType("application/json");
+                                response.getWriter().write("{\"message\":\"Token expirado\",\"status\":403}");
+                            }
+                        }))
                 .build();
     }
 
