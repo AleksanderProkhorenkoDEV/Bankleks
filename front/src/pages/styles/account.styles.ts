@@ -142,6 +142,7 @@ export const accountStyles = css`
         background: rgba(255,255,255,0.05);
         top: -60px;
         right: -40px;
+        pointer-events: none;
     }
 
     .bank-card-header {
