@@ -28,7 +28,8 @@ public class AccountService {
     private UserService userService;
     private TransactionRepository transactionRepository;
 
-    public AccountService(AccountRepository accountRepository, UserService userService, TransactionRepository transactionRepository) {
+    public AccountService(AccountRepository accountRepository, UserService userService,
+            TransactionRepository transactionRepository) {
         this.accountRepository = accountRepository;
         this.userService = userService;
         this.transactionRepository = transactionRepository;
@@ -36,7 +37,7 @@ public class AccountService {
     }
 
     public Account getAccount(Long id) {
-        return accountRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        return accountRepository.findByUserId(id).orElseThrow(EntityNotFoundException::new);
     }
 
     public Account getAccountByIban(String iban) {
