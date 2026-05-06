@@ -10,6 +10,7 @@ export class AccountPage extends LitElement {
     @state() private _account: AccountResponse | null = null;
     @state() private _loading: boolean = true;
     @state() private _error: string = '';
+    @state() private _showAccount: boolean = false;
 
     async connectedCallback() {
         super.connectedCallback();
@@ -29,10 +30,12 @@ export class AccountPage extends LitElement {
         this._loading = false;
     }
 
+    private _toggleAccount = (event: Event) => {
+        event.preventDefault();
+        this._showAccount = !this._showAccount;
+    }
 
-    static styles = [
-        accountStyles
-    ]
+    static styles = [accountStyles]
 
     render() {
         if (this._loading) return html`<loading-screen></loading-screen>`;
@@ -69,11 +72,13 @@ export class AccountPage extends LitElement {
                 <div class="bank-card">
                     <div class="bank-card-header">
                         <span class="bank-card-title">⊟ Mi Banco</span>
-                        <button class="show-btn">⊙ Mostrar</button>
+                        <button class="show-btn" @click=${this._toggleAccount}>
+                            ⊙ ${this._showAccount ? 'Ocultar' : 'Mostrar'}
+                        </button>
                     </div>
                     <div>
                         <p class="card-number-label">Número de tarjeta</p>
-                        <p class="card-number">${maskedNumber}</p>
+                        <p class="card-number">${this._showAccount ? accountNumber : maskedNumber}</p>
                     </div>
                     <div class="bank-card-footer">
                         <div>
@@ -101,7 +106,7 @@ export class AccountPage extends LitElement {
                     <div class="info-row-icon">⊟</div>
                     <div>
                         <p class="info-row-label">Número de cuenta</p>
-                        <p class="info-row-value">${maskedAccount}</p>
+                        <p class="info-row-value">${this._showAccount ? accountNumber : maskedAccount}</p>
                     </div>
                 </div>
                 <div class="account-type-badge">Cuenta Corriente Premium</div>
