@@ -22,7 +22,9 @@ const COLUMNS: TableColumn[] = [
             };
             return map[value] ?? value;
         }
-    }
+    },
+    { key: 'iban', label: 'Iban' },
+    { key: 'balance', label: 'Balance' }
 ];
 
 @customElement("panel-page")
