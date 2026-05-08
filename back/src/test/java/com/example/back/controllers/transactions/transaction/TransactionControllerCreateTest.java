@@ -38,13 +38,12 @@ public class TransactionControllerCreateTest extends TransactionControllerBase {
         @BeforeEach
         void setUp() {
                 user = new User("test", "test@gmail.com", "123456789", new Role());
-                destination = new Account(150.50, user, "1234567899876543211234");
-                origin = new Account(350.69, user, "9876543211234567899516");
+                destination = new Account(150.50, "1234567899876543211234", "UTC", user);
+                origin = new Account(350.69, "9876543211234567899516", "UTC", user);
                 user.setId(1L);
                 destination.setId(1L);
                 origin.setId(2L);
         }
-
 
         @Test
         void shouldCreateTransactionWithValidFieldsTypeDeposit() throws Exception {
