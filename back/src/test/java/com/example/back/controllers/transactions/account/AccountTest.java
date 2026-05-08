@@ -14,22 +14,22 @@ public class AccountTest {
 
     @Test
     void shouldThrowIfBalanceIsNull() {
-        assertThrows(IllegalArgumentException.class, () -> new Account(null, user, "1234567891234567899876"));
+        assertThrows(IllegalArgumentException.class, () -> new Account(null, "1234567891234567899876", "UTC", user));
     }
 
     @Test
     void shouldThrowIfUserIsNull() {
-        assertThrows(IllegalArgumentException.class, () -> new Account(150.50, null, "1234567891234567899876"));
+        assertThrows(IllegalArgumentException.class, () -> new Account(150.50, "1234567891234567899876", "UTC", null));
     }
 
     @Test
     void shouldThrowIfAccountNumberIsNull() {
-        assertThrows(IllegalArgumentException.class, () -> new Account(150.50, user, null));
+        assertThrows(IllegalArgumentException.class, () -> new Account(150.50, null, "UTC", user));
     }
 
     @Test
     void shouldCreateAccountWithValidData() {
-        Account account = new Account(150.50, user, "1234567891234567899876");
+        Account account = new Account(150.50, "1234567891234567899876", "UTC", user);
         assertEquals(150.50, account.getBalance());
         assertEquals(user, account.getUser());
         assertEquals("1234567891234567899876", account.getAccountNumber());
