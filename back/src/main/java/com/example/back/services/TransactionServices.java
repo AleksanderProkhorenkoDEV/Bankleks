@@ -1,6 +1,7 @@
 package com.example.back.services;
 
-import java.time.LocalDate;
+
+import java.time.Instant;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -66,8 +67,8 @@ public class TransactionServices {
 
         accountService.addBalance(destination, request.getAmount());
         transactionRepository.save(new Transaction(
-                request.getConcept(), request.getAmount(), LocalDate.now(),
-                TransactionType.DEPOSIT, user, destination, null));
+                request.getConcept(), request.getAmount(), Instant.now(),
+                TransactionType.DEPOSIT, user, destination, null, null));
     }
 
     private void withdrawalTransaction(CreateTransactionRequestDTO request, User user, Account origin) {
@@ -76,8 +77,8 @@ public class TransactionServices {
 
         accountService.subtractBalance(origin, request.getAmount());
         transactionRepository.save(new Transaction(
-                request.getConcept(), request.getAmount(), LocalDate.now(),
-                TransactionType.WITHDRAWAL, user, null, origin));
+                request.getConcept(), request.getAmount(), Instant.now(),
+                TransactionType.WITHDRAWAL, user, null, origin, null));
     }
 
     private void transferTransaction(CreateTransactionRequestDTO request, User user, Account destination,
@@ -88,8 +89,8 @@ public class TransactionServices {
         accountService.subtractBalance(origin, request.getAmount());
         accountService.addBalance(destination, request.getAmount());
         transactionRepository.save(new Transaction(
-                request.getConcept(), request.getAmount(), LocalDate.now(),
-                TransactionType.TRANSFER, user, destination, origin));
+                request.getConcept(), request.getAmount(), Instant.now(),
+                TransactionType.TRANSFER, user, destination, origin, null));
     }
 
     @Transactional
