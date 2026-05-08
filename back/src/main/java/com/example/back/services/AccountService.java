@@ -151,4 +151,10 @@ public class AccountService {
         return points;
     }
 
+    public void updateTimezone(Long id, String timezone) {
+        Account account = getAccount(id);
+        account.setTimezone(timezone);
+        accountRepository.save(account);
+    }
+
 }
