@@ -1,6 +1,6 @@
 package com.example.back.dto.transaction.transaction;
 
-import java.time.LocalDate;
+import java.time.Instant;
 
 import com.example.back.dto.transaction.account.AccountSummaryDTO;
 import com.example.back.dto.user.UserSummaryDTO;
@@ -15,7 +15,7 @@ public class TransactionResponseDTO {
     private Double amount;
     private String concept;
     private TransactionType transactionType;
-    private LocalDate transactionDate;
+    private Instant transactionDate;
     private AccountSummaryDTO originAccount;
     private AccountSummaryDTO destinationAccount;
     private UserSummaryDTO user;
