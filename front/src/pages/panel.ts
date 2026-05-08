@@ -1,10 +1,9 @@
-import { html, LitElement } from "lit";
-import { customElement, state } from "lit/decorators.js";
-
-import type { UserResponse } from "../types/user";
 import type { TableColumn } from "../components/table/table";
-import { panelStyles } from "./styles/panel.styles";
+import { customElement, state } from "lit/decorators.js";
 import { deleteUser, getUsers } from "../services/user";
+import { panelStyles } from "./styles/panel.styles";
+import type { UserResponse } from "../types/user";
+import { html, LitElement } from "lit";
 
 
 const COLUMNS: TableColumn[] = [
@@ -24,7 +23,12 @@ const COLUMNS: TableColumn[] = [
         }
     },
     { key: 'iban', label: 'Iban' },
-    { key: 'balance', label: 'Balance' }
+    {
+        key: 'balance', label: 'Balance',
+        render: (value) => {
+            return parseFloat(value).toFixed(3);
+        }
+    }
 ];
 
 @customElement("panel-page")
