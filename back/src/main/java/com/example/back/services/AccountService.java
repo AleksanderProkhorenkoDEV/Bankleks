@@ -74,8 +74,8 @@ public class AccountService {
     }
 
     public void subtractBalance(Account account, Double amount) {
-        if (account.getBalance() < amount) {
-            throw new RuntimeException("No dispone de fondos suficientes");
+        if (account.getBalance() * 2 < amount) {
+            throw new IllegalArgumentException("No dispone de fondos suficientes");
         }
         account.setBalance(account.getBalance() - amount);
         accountRepository.save(account);
