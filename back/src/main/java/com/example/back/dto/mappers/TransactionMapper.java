@@ -19,7 +19,7 @@ public class TransactionMapper {
         dto.setAmount(transaction.getAmount());
         dto.setConcept(transaction.getConcept());
         dto.setTransactionType(transaction.getType());
-        dto.setTransactionDate(transaction.getTransactionDay());
+        dto.setTransactionDate(transaction.getExecutedAt());
         dto.setOriginAccount(toAccountSummary(transaction.getAccountOrigin()));
         dto.setDestinationAccount(toAccountSummary(transaction.getAccountDestination()));
         dto.setUser(toUserSummary(transaction.getUser()));
