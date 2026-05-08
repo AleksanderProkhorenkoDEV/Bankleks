@@ -1,6 +1,6 @@
 package com.example.back.services;
 
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -64,7 +64,7 @@ public class AccountService {
 
     @Transactional
     public Account createAccount(User user) {
-        Account account = new Account(0D, user, this.generarIbanSimple());
+        Account account = new Account(0D, this.generarIbanSimple(), "UTC", user);
         return accountRepository.save(account);
     }
 
@@ -123,7 +123,7 @@ public class AccountService {
     private List<BalancePointDTO> buildBalanceEvolution(List<Transaction> transactions, Account account, User user) {
         // ordenamos por fecha
         List<Transaction> sorted = transactions.stream()
-                .sorted(Comparator.comparing(Transaction::getTransactionDay))
+                .sorted(Comparator.comparing(Transaction::getExecutedAt))
                 .toList();
 
         // reconstruimos el balance hacia atrás desde el actual
@@ -132,7 +132,7 @@ public class AccountService {
 
         for (int i = sorted.size() - 1; i >= 0; i--) {
             Transaction t = sorted.get(i);
-            points.addFirst(new BalancePointDTO(t.getTransactionDay(), currentBalance));
+            points.addFirst(new BalancePointDTO(t.getExecutedAt(), currentBalance));
 
             boolean isIncome = t.getType() == TransactionType.DEPOSIT ||
                     (t.getType() == TransactionType.TRANSFER &&
@@ -146,7 +146,7 @@ public class AccountService {
         }
 
         // añadimos el punto actual al final
-        points.add(new BalancePointDTO(LocalDate.now(), account.getBalance()));
+        points.add(new BalancePointDTO(Instant.now(), account.getBalance()));
 
         return points;
     }
