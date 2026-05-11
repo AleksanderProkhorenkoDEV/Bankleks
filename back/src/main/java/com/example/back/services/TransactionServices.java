@@ -1,7 +1,9 @@
 package com.example.back.services;
 
-
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -9,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.back.dto.transaction.transaction.CreateTransactionRequestDTO;
+import com.example.back.dto.transaction.transaction.CreateTransactionScheduledRequestDTO;
 import com.example.back.dto.transaction.transaction.UpdateConceptRequestDTO;
 import com.example.back.entities.transactions.Account;
 import com.example.back.entities.transactions.Transaction;
@@ -24,13 +27,15 @@ public class TransactionServices {
 
     private TransactionRepository transactionRepository;
     private AccountService accountService;
+    private TransactionScheduledService transactionScheduledService;
     private UserService userService;
 
     public TransactionServices(TransactionRepository transactionRepository, AccountService accountService,
-            UserService userService) {
+            UserService userService, TransactionScheduledService transactionScheduledService) {
         this.transactionRepository = transactionRepository;
         this.accountService = accountService;
         this.userService = userService;
+        this.transactionScheduledService = transactionScheduledService;
     }
 
     public Page<Transaction> getAllTransaction(String email, Integer page, Integer sizePerPage) {
@@ -131,5 +136,45 @@ public class TransactionServices {
         }
 
         transactionRepository.delete(transaction);
+    }
+
+    @Transactional
+    public void createScheduledTransaction(CreateTransactionScheduledRequestDTO request, String email) {
+
+        validateTimezone(request.getTargetTimezone());
+
+        Account originAccount = accountService.getAccountByIban(request.getOriginIban());
+        Account destinatiAccount = accountService.getAccountByIban(request.getDestinationIban());
+
+        validateAvailableBalance(originAccount, request.getAmount());
+        Instant scheduledAtUTC = convertToUTC(request.getTargetTimezone(), request.getScheduledAt());
+        validateFutureDate(scheduledAtUTC);
+
+        accountService.addReservedBalance(originAccount, request.getAmount());
+        transactionScheduledService.ScheduledTransfer(originAccount, destinatiAccount, request.getAmount(), request.getConcept(), scheduledAtUTC, request.getTargetTimezone());
+    }
+
+    private void validateAvailableBalance(Account account, Double amount) {
+        double available = account.getBalance() - account.getBalanceReserved();
+        if (available < amount)
+            throw new IllegalArgumentException("Saldo insuficiente");
+    }
+
+    private void validateTimezone(String timezone) {
+        if (!ZoneId.getAvailableZoneIds().contains(timezone))
+            throw new IllegalArgumentException("Timezone no válido: " + timezone);
+    }
+
+    private void validateFutureDate(Instant scheduledAt) {
+        if (scheduledAt.isBefore(Instant.now()))
+            throw new IllegalArgumentException("La fecha debe ser futura");
+    }
+
+    private Instant convertToUTC(String targetTime, LocalDateTime scheduledAt) {
+        ZonedDateTime userTime = ZonedDateTime.of(
+                scheduledAt,
+                ZoneId.of(targetTime));
+
+        return userTime.toInstant();
     }
 }
