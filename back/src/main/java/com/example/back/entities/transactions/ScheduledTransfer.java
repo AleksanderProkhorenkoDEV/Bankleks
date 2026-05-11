@@ -6,6 +6,8 @@ import com.example.back.enums.ScheduledTransactionType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,7 +15,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
+import lombok.Data;
 
+@Data
 @Entity
 public class ScheduledTransfer {
     @Id
@@ -21,7 +25,10 @@ public class ScheduledTransfer {
     private Long id;
 
     @Column(nullable = false)
-    private Double balance;
+    private Double amount;
+
+    @Column(nullable = false)
+    private String concept;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "account_origin_id", nullable = false)
@@ -37,6 +44,7 @@ public class ScheduledTransfer {
     @Column(nullable = false)
     private String targetTimezone;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ScheduledTransactionType status;
 
@@ -46,4 +54,19 @@ public class ScheduledTransfer {
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
+
+    public ScheduledTransfer() {
+    }
+
+    public ScheduledTransfer(Account accountOrigin, Account accountDestination,
+            Double amount, String concept, Instant scheduledAt, String targetTimezone) {
+        this.accountOrigin = accountOrigin;
+        this.accountDestination = accountDestination;
+        this.amount = amount;
+        this.concept = concept;
+        this.scheduledAt = scheduledAt;
+        this.targetTimezone = targetTimezone;
+        this.status = ScheduledTransactionType.SCHEDULED;
+    }
+
 }
