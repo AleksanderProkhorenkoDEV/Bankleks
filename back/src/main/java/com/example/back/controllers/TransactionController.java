@@ -8,6 +8,7 @@ import com.example.back.dto.GlobalResponseDTO;
 import com.example.back.dto.PageResponseDTO;
 import com.example.back.dto.mappers.TransactionMapper;
 import com.example.back.dto.transaction.transaction.CreateTransactionRequestDTO;
+import com.example.back.dto.transaction.transaction.CreateTransactionScheduledRequestDTO;
 import com.example.back.dto.transaction.transaction.TransactionResponseDTO;
 import com.example.back.dto.transaction.transaction.UpdateConceptRequestDTO;
 import com.example.back.services.TransactionServices;
@@ -56,6 +57,15 @@ public class TransactionController {
             @Valid @RequestBody CreateTransactionRequestDTO request,
             @AuthenticationPrincipal UserDetails userDetails) {
         transactionServices.createTransaction(request, userDetails.getUsername());
+        return ResponseEntity.ok(new GlobalResponseDTO("Transacción creada", HttpStatus.CREATED.value()));
+    }
+
+    @PostMapping("/create-scheduled")
+    public ResponseEntity<GlobalResponseDTO> createTransactionScheduled(
+            @Valid @RequestBody CreateTransactionScheduledRequestDTO request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        transactionServices.createScheduledTransaction(request, userDetails.getUsername());
         return ResponseEntity.ok(new GlobalResponseDTO("Transacción creada", HttpStatus.CREATED.value()));
     }
 
