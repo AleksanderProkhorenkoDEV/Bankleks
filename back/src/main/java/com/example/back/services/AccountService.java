@@ -157,4 +157,9 @@ public class AccountService {
         accountRepository.save(account);
     }
 
+    public void addReservedBalance(Account account, Double amount){
+        account.setBalanceReserved(account.getBalance() + amount);
+        accountRepository.save(account);
+    }
+
 }
