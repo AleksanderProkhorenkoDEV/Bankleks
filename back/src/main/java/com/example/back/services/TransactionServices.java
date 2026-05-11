@@ -151,7 +151,8 @@ public class TransactionServices {
         validateFutureDate(scheduledAtUTC);
 
         accountService.addReservedBalance(originAccount, request.getAmount());
-        transactionScheduledService.ScheduledTransfer(originAccount, destinatiAccount, request.getAmount(), request.getConcept(), scheduledAtUTC, request.getTargetTimezone());
+        transactionScheduledService.createScheduledTransfer(originAccount, destinatiAccount, request.getAmount(),
+                request.getConcept(), scheduledAtUTC, request.getTargetTimezone());
     }
 
     private void validateAvailableBalance(Account account, Double amount) {
@@ -176,5 +177,17 @@ public class TransactionServices {
                 ZoneId.of(targetTime));
 
         return userTime.toInstant();
+    }
+
+    @Transactional
+    public Transaction createTransferTransaction(String concept, Double amount,
+            Account origin, Account destination) {
+        return transactionRepository.save(new Transaction(
+                concept, amount, Instant.now(),
+                TransactionType.TRANSFER,
+                origin.getUser(),
+                destination,
+                origin,
+                null));
     }
 }
