@@ -158,7 +158,12 @@ public class AccountService {
     }
 
     public void addReservedBalance(Account account, Double amount){
-        account.setBalanceReserved(account.getBalance() + amount);
+        account.setBalanceReserved(account.getBalanceReserved() + amount);
+        accountRepository.save(account);
+    }
+
+    public void releaseReservedBalance(Account account, Double amount){
+        account.setBalanceReserved(account.getBalanceReserved() - amount);
         accountRepository.save(account);
     }
 
