@@ -5,7 +5,7 @@ export interface TransactionFormData {
     destinationIban: string;
     type: TransactionType;
     isScheduled: boolean;
-    scheduledDate: string;
+    scheduledDate: string[];
     scheduledTime: string;
     targetTimezone: string;
 }
@@ -42,5 +42,6 @@ export interface ScheduledTransactionBody {
     originIban: string;
     destinationIban: string;
     targetTimezone: string;
-    scheduledAt: string;
+    scheduledTime: string;      
+    scheduledDates: string[];
 }
