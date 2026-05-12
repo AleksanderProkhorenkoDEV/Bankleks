@@ -4,6 +4,10 @@ export interface TransactionFormData {
     originIban: string;
     destinationIban: string;
     type: TransactionType;
+    isScheduled: boolean;
+    scheduledDate: string;
+    scheduledTime: string;
+    targetTimezone: string;
 }
 
 
@@ -20,7 +24,7 @@ export interface TransactionResponse {
     concept: string;
     transactionType: string;
     amount: number;
-    transactionDate: string; 
+    transactionDate: string;
 }
 
 export interface PageResponse<T> {
@@ -31,3 +35,12 @@ export interface PageResponse<T> {
 }
 
 export type TransactionType = 'TRANSFER' | 'DEPOSIT' | 'WITHDRAWAL';
+
+export interface ScheduledTransactionBody {
+    concept: string;
+    amount: number;
+    originIban: string;
+    destinationIban: string;
+    targetTimezone: string;
+    scheduledAt: string;
+}
