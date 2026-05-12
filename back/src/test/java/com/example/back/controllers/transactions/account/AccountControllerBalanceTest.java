@@ -23,75 +23,75 @@ import jakarta.persistence.EntityNotFoundException;
 @WebMvcTest(controllers = AccountController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 public class AccountControllerBalanceTest extends AccountControllerBase {
 
-    Account account;
-    User user;
+        Account account;
+        User user;
 
-    private AccountResponseDTO accountResponseDTO;
+        private AccountResponseDTO accountResponseDTO;
 
-    @BeforeEach
-    void setUp() {
-        User user = new User("test", "test@gmail.com", "123456", new Role());
-        user.setId(1L);
-        account = new Account(500.0, user, "ES1234567890");
-        account.setId(1L);
+        @BeforeEach
+        void setUp() {
+                User user = new User("test", "test@gmail.com", "123456", new Role());
+                user.setId(1L);
+                account = new Account(500.0, "ES1234567890", "UTC", user);
+                account.setId(1L);
 
-        accountResponseDTO = new AccountResponseDTO(
-                "ES1234567890", 500.0,
-                new UserSummaryDTO(1L, "test"));
-    }
+                accountResponseDTO = new AccountResponseDTO(
+                                "ES1234567890", 500.0,
+                                new UserSummaryDTO(1L, "test"));
+        }
 
-    @Test
-    void shouldReturnBalanceWhenAccountExists() throws Exception {
-        when(accountService.getAccount(1L)).thenReturn(account);
+        @Test
+        void shouldReturnBalanceWhenAccountExists() throws Exception {
+                when(accountService.getAccount(1L)).thenReturn(account);
 
-        mockMvc.perform(get("/accounts/{id}/balance", 1L))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.amount", is(500.0)));
-    }
+                mockMvc.perform(get("/accounts/{id}/balance", 1L))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.amount", is(500.0)));
+        }
 
-    @Test
-    void shouldReturnNotFoundWhenAccountNotExists() throws Exception {
-        when(accountService.getAccount(99L)).thenThrow(new EntityNotFoundException());
+        @Test
+        void shouldReturnNotFoundWhenAccountNotExists() throws Exception {
+                when(accountService.getAccount(99L)).thenThrow(new EntityNotFoundException());
 
-        mockMvc.perform(get("/accounts/{id}/balance", 99L))
-                .andExpect(status().isNotFound());
-    }
+                mockMvc.perform(get("/accounts/{id}/balance", 99L))
+                                .andExpect(status().isNotFound());
+        }
 
-    @Test
-    void shouldReturnBalanceIfAccountExist() throws Exception {
+        @Test
+        void shouldReturnBalanceIfAccountExist() throws Exception {
 
-        when(accountService.getAccount(account.getId()))
-                .thenReturn(account);
+                when(accountService.getAccount(account.getId()))
+                                .thenReturn(account);
 
-        mockMvc.perform(
-                get("/accounts/{id}/balance", account.getId()))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.amount", is(500.0)));
-    }
+                mockMvc.perform(
+                                get("/accounts/{id}/balance", account.getId()))
+                                .andDo(print())
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.amount", is(500.0)));
+        }
 
-    @Test
-    void shouldReturnNotFoundIfAccountNotExist() throws Exception {
-        Long nonExistentId = 99L;
+        @Test
+        void shouldReturnNotFoundIfAccountNotExist() throws Exception {
+                Long nonExistentId = 99L;
 
-        when(accountService.getAccount(nonExistentId))
-                .thenThrow(new EntityNotFoundException());
+                when(accountService.getAccount(nonExistentId))
+                                .thenThrow(new EntityNotFoundException());
 
-        mockMvc.perform(get("/accounts/{id}/balance", nonExistentId))
-                .andExpect(status().isNotFound());
-    }
+                mockMvc.perform(get("/accounts/{id}/balance", nonExistentId))
+                                .andExpect(status().isNotFound());
+        }
 
-    @Test
-    void shouldReturnAccountDataWhenAccountExists() throws Exception {
-        when(accountService.getAccount(1L)).thenReturn(account);
-        when(accountMapper.toDTO(account)).thenReturn(accountResponseDTO);
+        @Test
+        void shouldReturnAccountDataWhenAccountExists() throws Exception {
+                when(accountService.getAccount(1L)).thenReturn(account);
+                when(accountMapper.toDTO(account)).thenReturn(accountResponseDTO);
 
-        mockMvc.perform(get("/accounts/{id}/all-data", 1L))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accountNumber", is("ES1234567890")))
-                .andExpect(jsonPath("$.balance", is(500.0)))
-                .andExpect(jsonPath("$.userSummaryDTO.username", is("test")));
-    }
+                mockMvc.perform(get("/accounts/{id}/all-data", 1L))
+                                .andDo(print())
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.accountNumber", is("ES1234567890")))
+                                .andExpect(jsonPath("$.balance", is(500.0)))
+                                .andExpect(jsonPath("$.userSummaryDTO.username", is("test")));
+        }
 
 }

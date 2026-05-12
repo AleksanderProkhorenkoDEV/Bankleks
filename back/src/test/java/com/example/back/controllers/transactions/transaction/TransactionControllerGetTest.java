@@ -6,7 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -38,8 +38,8 @@ public class TransactionControllerGetTest extends TransactionControllerBase {
         @BeforeEach
         void setUp() {
                 user = new User("test", "test@gmail.com", "123456789", new Role());
-                destination = new Account(150.50, user, "1234567899876543211234");
-                origin = new Account(350.69, user, "9876543211234567899516");
+                destination = new Account(150.50, "1234567899876543211234", "UTC", user);
+                origin = new Account(350.69, "9876543211234567899516", "UTC", user);
 
                 user.setId(1L);
                 destination.setId(1L);
@@ -49,8 +49,8 @@ public class TransactionControllerGetTest extends TransactionControllerBase {
         @Test
         void shouldReturnTransactionPageByUserId() throws Exception {
                 Transaction transaction = new Transaction(
-                                "test concept", 6.99, LocalDate.now(),
-                                TransactionType.DEPOSIT, user, destination, null);
+                                "test concept", 6.99, Instant.now(),
+                                TransactionType.DEPOSIT, user, destination, null, null);
                 transaction.setId(1L);
 
                 Page<Transaction> transactionPage = new PageImpl<>(List.of(transaction));

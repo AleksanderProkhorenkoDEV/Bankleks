@@ -2,7 +2,7 @@ package com.example.back.dtos;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +16,7 @@ public class AccountResponseDTOTest {
     @Test
     void shouldCreateDTOWithCorrectValues() {
         List<BalancePointDTO> points = List.of(
-                new BalancePointDTO(LocalDate.now(), 50D));
+                new BalancePointDTO(Instant.now(), 50D));
 
         AccountStatsDTO dto = new AccountStatsDTO(1500.0, 300.0, points);
 

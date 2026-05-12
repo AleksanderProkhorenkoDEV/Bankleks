@@ -5,6 +5,8 @@ export const baseStyles = css`
     :host{
         display:block;
         width:65%;
+        max-height: 70vh;
+        overflow-y: auto;
     }
 
     form{

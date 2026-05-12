@@ -290,6 +290,52 @@ export const accountStyles = css`
         margin-top: 0.25rem;
     }
 
+    .timezone-select {
+        margin-top: 0.25rem;
+        width: 100%;
+        padding: 0.4rem 0.6rem;
+        border-radius: 8px;
+        border: 1px solid rgba(19, 78, 74, 0.2);
+        font-family: var(--font-main);
+        font-size: 0.875rem;
+        color: var(--text-primary);
+        background: var(--background-color);
+        cursor: pointer;
+    }
+
+    .timezone-select {
+        margin-top: 0.25rem;
+        width: 100%;
+        padding: 0.4rem 0.6rem;
+        border-radius: 8px;
+        border: 1px solid rgba(19, 78, 74, 0.2);
+        font-family: var(--font-main);
+        font-size: 0.875rem;
+        color: var(--text-primary);
+        background: var(--background-color);
+        cursor: pointer;
+    }
+
+    .timezone-row {
+        background: var(--background-color);
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .timezone-row-top {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .timezone-row-actions {
+        display: flex;
+        justify-content: flex-end;
+    }
+
     /* RESPONSIVE */
     @media (max-width: 600px) {
         .account {
