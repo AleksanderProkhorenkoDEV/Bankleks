@@ -1,7 +1,7 @@
-import type { TransactionBody, TransactionFormData, TransactionType } from "../../types/transactions";
+import type { ScheduledTransactionBody, TransactionBody, TransactionFormData, TransactionType } from "../../types/transactions";
+import { createScheduledTransaction, createTransaction } from "../../services/transaction";
 import { isIBAN, isPositive, required, validate } from "../../utils/validatior";
 import { customElement, query, state } from "lit/decorators.js";
-import { createTransaction } from "../../services/transaction";
 import type { InputForm, SelectForm } from "./parts";
 import { html, LitElement, nothing } from "lit";
 import { baseStyles } from "./base.styles";
@@ -15,18 +15,41 @@ export class TransactionForm extends LitElement {
     @query('input-form[name="originIban"]') _originInput!: InputForm;
     @query('input-form[name="destinationIban"]') _destinationInput!: InputForm;
     @query('select-form[name="type"]') _typeSelect!: SelectForm;
+    @query('input-form[name="scheduledDate"]') _scheduledDateInput!: InputForm;
+    @query('input-form[name="scheduledTime"]') _scheduledTimeInput!: InputForm;
+    @query('select-form[name="targetTimezone"]') _timezoneSelect!: SelectForm;
 
     @state() private _type: TransactionType = 'TRANSFER';
+    @state() private _isScheduled: boolean = false;
 
-    private _formData: TransactionFormData = { concept: "", amount: "0.00", originIban: "", destinationIban: "", type: "DEPOSIT" };
+    private _formData: TransactionFormData = {
+        concept: "", amount: "0.00", originIban: "", destinationIban: "",
+        type: "DEPOSIT", isScheduled: false,
+        scheduledDate: "", scheduledTime: "", targetTimezone: "Europe/Madrid"
+    };
+
+    private _timezones = [
+        { value: 'Europe/Madrid', label: 'Madrid (UTC+1/+2)' },
+        { value: 'Atlantic/Canary', label: 'Canarias (UTC+0/+1)' },
+        { value: 'Europe/London', label: 'Londres (UTC+0/+1)' },
+        { value: 'Europe/Paris', label: 'París (UTC+1/+2)' },
+        { value: 'America/New_York', label: 'Nueva York (UTC-5/-4)' },
+        { value: 'UTC', label: 'UTC' },
+    ];
 
     private _handleInputChange = (e: CustomEvent) => {
         const key = e.detail.name as keyof TransactionFormData;
-        this._formData[key] = e.detail.value;
+        const value = e.detail.value as TransactionFormData[typeof key];
+        this._formData = { ...this._formData, [key]: value };
 
-        if (e.detail.name === 'type') {
-            this._type = e.detail.value as TransactionType;
+        if (key === 'type') {
+            this._type = value as TransactionType;
         }
+    }
+
+    private _handleScheduledToggle = (e: Event) => {
+        this._isScheduled = (e.target as HTMLInputElement).checked;
+        this._formData.isScheduled = this._isScheduled;
     }
 
     private _dispatchToast(type: 'success' | 'error', message: string) {
@@ -58,7 +81,25 @@ export class TransactionForm extends LitElement {
             if (destinationError) { this._destinationInput.setError(destinationError); isValid = false; }
         }
 
+        if (this._isScheduled) {
+            const dateError = validate(this._formData.scheduledDate ?? '', [required()]);
+            const timeError = validate(this._formData.scheduledTime ?? '', [required()]);
+            if (dateError) { this._scheduledDateInput.setError(dateError); isValid = false; }
+            if (timeError) { this._scheduledTimeInput.setError(timeError); isValid = false; }
+        }
+
         return isValid;
+    }
+
+    private _buildScheduledBody(): ScheduledTransactionBody {
+        return {
+            concept: this._formData.concept,
+            amount: parseFloat(this._formData.amount),
+            originIban: this._formData.originIban,
+            destinationIban: this._formData.destinationIban,
+            targetTimezone: this._formData.targetTimezone,
+            scheduledAt: `${this._formData.scheduledDate}T${this._formData.scheduledTime}`,
+        }
     }
 
     private _buildBody(): TransactionBody {
@@ -73,79 +114,90 @@ export class TransactionForm extends LitElement {
 
     private _handleSubmit = async (e: SubmitEvent) => {
         e.preventDefault();
-
         if (!this._validate()) return;
+
+        if (this._isScheduled) {
+            const { error } = await createScheduledTransaction(this._buildScheduledBody());
+            if (error) {
+                this._dispatchToast("error", "No hemos podido programar la transacción.");
+                return;
+            }
+            this._dispatchToast("success", "Transacción programada correctamente");
+            return;
+        }
 
         const { error } = await createTransaction(this._buildBody());
         if (error) {
-            this._dispatchToast("error", "No hemos podido realizar la transacción.")
-            return
+            this._dispatchToast("error", "No hemos podido realizar la transacción.");
+            return;
         }
-
-        this._dispatchToast("success", "Transacción creada correctamente")
+        this._dispatchToast("success", "Transacción creada correctamente");
     }
 
-
-    static styles = [
-        baseStyles,
-    ]
+    static styles = [baseStyles];
 
     render() {
         return html`
             <form @submit=${this._handleSubmit}>
-            <input-form
-                name="concept"
-                label="Concepto"
-                type="text"
-                placeholder="Bizum desayuno"
-                @input-change=${this._handleInputChange}
-            ></input-form>
+                <input-form name="concept" label="Concepto" type="text"
+                    placeholder="Bizum desayuno"
+                    @input-change=${this._handleInputChange}>
+                </input-form>
 
-            <input-form
-                name="amount"
-                label="Cantidad"
-                type="number"
-                step="0.01"
-                placeholder="0,00"
-                @input-change=${this._handleInputChange}
-            ></input-form>
+                <input-form name="amount" label="Cantidad" type="number" step="0.01"
+                    placeholder="0,00"
+                    @input-change=${this._handleInputChange}>
+                </input-form>
 
-            <select-form
-                name="type"
-                label="Tipo de transacción"
-                .options=${[
+                <select-form name="type" label="Tipo de transacción"
+                    .options=${[
                 { value: 'TRANSFER', label: 'Transferencia' },
                 { value: 'DEPOSIT', label: 'Ingreso' },
                 { value: 'WITHDRAWAL', label: 'Retirada' }
             ]}
-                @input-change=${this._handleInputChange}
-            ></select-form>
+                    @input-change=${this._handleInputChange}>
+                </select-form>
 
-            ${this._type !== 'DEPOSIT' ? html`
-                <input-form
-                    name="originIban"
-                    label="Cuenta de origen"
-                    type="text"
-                    placeholder="ES03659556...."
-                    @input-change=${this._handleInputChange}
-                ></input-form>
-            ` : nothing}
+                ${this._type !== 'DEPOSIT' ? html`
+                    <input-form name="originIban" label="Cuenta de origen" type="text"
+                        placeholder="ES03659556...."
+                        @input-change=${this._handleInputChange}>
+                    </input-form>
+                ` : nothing}
 
-            ${this._type !== 'WITHDRAWAL' ? html`
-                <input-form
-                    name="destinationIban"
-                    label="Cuenta destino"
-                    type="text"
-                    placeholder="ES026595698...."
-                    @input-change=${this._handleInputChange}
-                ></input-form>
-            ` : nothing}
+                ${this._type !== 'WITHDRAWAL' ? html`
+                    <input-form name="destinationIban" label="Cuenta destino" type="text"
+                        placeholder="ES026595698...."
+                        @input-change=${this._handleInputChange}>
+                    </input-form>
+                ` : nothing}
 
-            <button-form variant="primary" .type=${"submit"}>
-                Realizar transacción
-            </button-form>
-        </form>
-        `
+                <!-- Toggle programar -->
+                <label class="scheduled-toggle">
+                    <input type="checkbox" @change=${this._handleScheduledToggle} />
+                    Programar transferencia
+                </label>
+
+                ${this._isScheduled ? html`
+                    <input-form name="scheduledDate" label="Fecha de ejecución" type="date"
+                        @input-change=${this._handleInputChange}>
+                    </input-form>
+
+                    <input-form name="scheduledTime" label="Hora de ejecución" type="time"
+                        @input-change=${this._handleInputChange}>
+                    </input-form>
+
+                    <select-form name="targetTimezone" label="Zona horaria"
+                        .options=${this._timezones}
+                        @input-change=${this._handleInputChange}>
+                    </select-form>
+                ` : nothing}
+
+                <button-form variant="primary" .type=${"submit"}>
+                    ${this._isScheduled ? 'Programar transacción' : 'Realizar transacción'}
+                </button-form>
+            </form>
+        `;
     }
 }
 
