@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -144,15 +145,31 @@ public class TransactionServices {
         validateTimezone(request.getTargetTimezone());
 
         Account originAccount = accountService.getAccountByIban(request.getOriginIban());
-        Account destinatiAccount = accountService.getAccountByIban(request.getDestinationIban());
+        Account destinationAccount = accountService.getAccountByIban(request.getDestinationIban());
 
-        validateAvailableBalance(originAccount, request.getAmount());
-        Instant scheduledAtUTC = convertToUTC(request.getTargetTimezone(), request.getScheduledAt());
-        validateFutureDate(scheduledAtUTC);
+        double totalAmount = request.getAmount() * request.getScheduledDates().size();
+        validateAvailableBalance(originAccount, totalAmount);
 
-        accountService.addReservedBalance(originAccount, request.getAmount());
-        transactionScheduledService.createScheduledTransfer(originAccount, destinatiAccount, request.getAmount(),
-                request.getConcept(), scheduledAtUTC, request.getTargetTimezone());
+        /* 
+         1 Convertimos la lista de fechas en Instants UTC 
+         2 Creamos con la fecha y el tiempo el LocalDateTiem y lo convertimos a UTC
+         3 con peek() ejecuta la acción por cada elemento sin transformarlo, así nos aseguramos de que las fechas sean válidas
+         4 con toList() forzamos que el stream sea una lista, sin esto no se ejecuta el map ni el peek
+        */
+        List<Instant> scheduledInstants = request.getScheduledDates().stream()
+                .map(date -> convertToUTC(
+                        request.getTargetTimezone(),
+                        LocalDateTime.parse(date + "T" + request.getScheduledTime())))
+                .peek(this::validateFutureDate)
+                .toList();
+
+        for (Instant scheduledAtUTC : scheduledInstants) {
+            accountService.addReservedBalance(originAccount, request.getAmount());
+            transactionScheduledService.createScheduledTransfer(
+                    originAccount, destinationAccount,
+                    request.getAmount(), request.getConcept(),
+                    scheduledAtUTC, request.getTargetTimezone());
+        }
     }
 
     private void validateAvailableBalance(Account account, Double amount) {

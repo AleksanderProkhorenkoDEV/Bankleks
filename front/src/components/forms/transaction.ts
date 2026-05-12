@@ -15,17 +15,19 @@ export class TransactionForm extends LitElement {
     @query('input-form[name="originIban"]') _originInput!: InputForm;
     @query('input-form[name="destinationIban"]') _destinationInput!: InputForm;
     @query('select-form[name="type"]') _typeSelect!: SelectForm;
-    @query('input-form[name="scheduledDate"]') _scheduledDateInput!: InputForm;
     @query('input-form[name="scheduledTime"]') _scheduledTimeInput!: InputForm;
     @query('select-form[name="targetTimezone"]') _timezoneSelect!: SelectForm;
+    @query('input-form[name="scheduledDate"]') _scheduledDateInput!: InputForm;
 
     @state() private _type: TransactionType = 'TRANSFER';
     @state() private _isScheduled: boolean = false;
+    @state() private _scheduledDates: string[] = [];
+    @state() private _pendingDate: string = '';
 
     private _formData: TransactionFormData = {
         concept: "", amount: "0.00", originIban: "", destinationIban: "",
         type: "DEPOSIT", isScheduled: false,
-        scheduledDate: "", scheduledTime: "", targetTimezone: "Europe/Madrid"
+        scheduledDate: [], scheduledTime: "", targetTimezone: "Europe/Madrid"
     };
 
     private _timezones = [
@@ -42,14 +44,27 @@ export class TransactionForm extends LitElement {
         const value = e.detail.value as TransactionFormData[typeof key];
         this._formData = { ...this._formData, [key]: value };
 
-        if (key === 'type') {
-            this._type = value as TransactionType;
-        }
+        if (key === 'type') this._type = value as TransactionType;
+        if (key === 'scheduledDate') this._pendingDate = value as string;
     }
 
     private _handleScheduledToggle = (e: Event) => {
         this._isScheduled = (e.target as HTMLInputElement).checked;
         this._formData.isScheduled = this._isScheduled;
+    }
+
+    private _addDate = () => {
+        if (!this._pendingDate) return;
+        if (this._scheduledDates.includes(this._pendingDate)) return;
+
+        this._scheduledDates = [...this._scheduledDates, this._pendingDate].sort();
+        this._formData = { ...this._formData, scheduledDate: this._scheduledDates };
+        this._pendingDate = '';
+    }
+
+    private _removeDate = (date: string) => {
+        this._scheduledDates = this._scheduledDates.filter(d => d !== date);
+        this._formData = { ...this._formData, scheduledDate: this._scheduledDates };
     }
 
     private _dispatchToast(type: 'success' | 'error', message: string) {
@@ -82,10 +97,13 @@ export class TransactionForm extends LitElement {
         }
 
         if (this._isScheduled) {
-            const dateError = validate(this._formData.scheduledDate ?? '', [required()]);
             const timeError = validate(this._formData.scheduledTime ?? '', [required()]);
-            if (dateError) { this._scheduledDateInput.setError(dateError); isValid = false; }
             if (timeError) { this._scheduledTimeInput.setError(timeError); isValid = false; }
+
+            if (this._scheduledDates.length === 0) {
+                this._scheduledDateInput.setError('Añade al menos una fecha');
+                isValid = false;
+            }
         }
 
         return isValid;
@@ -98,7 +116,8 @@ export class TransactionForm extends LitElement {
             originIban: this._formData.originIban,
             destinationIban: this._formData.destinationIban,
             targetTimezone: this._formData.targetTimezone,
-            scheduledAt: `${this._formData.scheduledDate}T${this._formData.scheduledTime}`,
+            scheduledTime: this._formData.scheduledTime,
+            scheduledDates: this._scheduledDates,
         }
     }
 
@@ -172,16 +191,12 @@ export class TransactionForm extends LitElement {
                     </input-form>
                 ` : nothing}
 
-                <!-- Toggle programar -->
                 <label class="scheduled-toggle">
                     <input type="checkbox" @change=${this._handleScheduledToggle} />
                     Programar transferencia
                 </label>
 
                 ${this._isScheduled ? html`
-                    <input-form name="scheduledDate" label="Fecha de ejecución" type="date"
-                        @input-change=${this._handleInputChange}>
-                    </input-form>
 
                     <input-form name="scheduledTime" label="Hora de ejecución" type="time"
                         @input-change=${this._handleInputChange}>
@@ -191,6 +206,28 @@ export class TransactionForm extends LitElement {
                         .options=${this._timezones}
                         @input-change=${this._handleInputChange}>
                     </select-form>
+
+                    <!-- Selector de fechas -->
+                    <div class="date-picker">
+                        <input-form name="scheduledDate" label="Añadir fecha" type="date"
+                            @input-change=${this._handleInputChange}>
+                        </input-form>
+                        <button type="button" class="date-add-btn" @click=${this._addDate}>
+                            + Añadir
+                        </button>
+                    </div>
+
+                    ${this._scheduledDates.length > 0 ? html`
+                        <div class="date-tags">
+                            ${this._scheduledDates.map(date => html`
+                                <span class="date-tag">
+                                    ${date}
+                                    <button type="button" @click=${() => this._removeDate(date)}>✕</button>
+                                </span>
+                            `)}
+                        </div>
+                    ` : nothing}
+
                 ` : nothing}
 
                 <button-form variant="primary" .type=${"submit"}>
