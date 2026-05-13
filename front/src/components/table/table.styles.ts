@@ -8,7 +8,7 @@ export const tableStyles = css`
 
     .table-wrapper {
         border-radius: 12px;
-        overflow: hidden;
+        overflow-x: auto;
         background: white;
     }
 

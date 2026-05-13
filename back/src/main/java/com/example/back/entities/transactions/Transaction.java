@@ -1,6 +1,6 @@
 package com.example.back.entities.transactions;
 
-import java.time.LocalDate;
+import java.time.Instant;
 
 import com.example.back.entities.user.User;
 import com.example.back.enums.TransactionType;
@@ -15,6 +15,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import lombok.Data;
 
 @Data
@@ -32,7 +33,7 @@ public class Transaction {
     private Double amount;
 
     @Column(nullable = false)
-    private LocalDate transactionDay;
+    private Instant executedAt;
 
     @Enumerated(EnumType.STRING)
     private TransactionType type;
@@ -49,19 +50,23 @@ public class Transaction {
     @JoinColumn(name = "account_origin_id", nullable = true)
     private Account accountOrigin;
 
+    @OneToOne
+    @JoinColumn(name = "scheduled_transfer_id", nullable = true)
+    private ScheduledTransfer scheduledTransfer;
+
     public Transaction() {
     }
 
-    public Transaction(String concept, Double amount, LocalDate transactionDay, TransactionType type, User user,
-            Account accountDestination, Account accountOrigin) {
-
+    public Transaction(String concept, Double amount, Instant executedAt, TransactionType type, User user,
+            Account accountDestination, Account accountOrigin, ScheduledTransfer scheduledTransfer) {
         this.concept = concept;
         this.amount = amount;
-        this.transactionDay = transactionDay;
+        this.executedAt = executedAt;
         this.type = type;
         this.user = user;
         this.accountDestination = accountDestination;
         this.accountOrigin = accountOrigin;
+        this.scheduledTransfer = scheduledTransfer;
     }
 
 }

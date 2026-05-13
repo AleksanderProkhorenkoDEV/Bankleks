@@ -1,8 +1,17 @@
 import { customElement, state } from "lit/decorators.js";
-import type { AccountResponse } from "../types/account";
-import { getAccount } from "../services/account";
+import type { AccountResponse, TimezoneType } from "../types/account";
+import { getAccount, getTimezone, updateTimezone } from "../services/account";
 import { html, LitElement } from "lit";
 import { accountStyles } from "./styles/account.styles";
+
+const TIMEZONES: TimezoneType[] = [
+    'UTC',
+    'Europe/Madrid',
+    'Europe/London',
+    'America/New_York',
+    'America/Los_Angeles',
+    'Asia/Tokyo',
+];
 
 @customElement("account-page")
 export class AccountPage extends LitElement {
@@ -11,10 +20,13 @@ export class AccountPage extends LitElement {
     @state() private _loading: boolean = true;
     @state() private _error: string = '';
     @state() private _showAccount: boolean = false;
+    @state() private _timezone: TimezoneType = 'UTC';
+    @state() private _savingTimezone: boolean = false;
+    @state() private _timezoneSaved: boolean = false;
 
     async connectedCallback() {
         super.connectedCallback();
-        await this._loadAccount();
+        await Promise.all([this._loadAccount(), this._loadTimezone()]);
     }
 
     private async _loadAccount() {
@@ -34,6 +46,42 @@ export class AccountPage extends LitElement {
         event.preventDefault();
         this._showAccount = !this._showAccount;
     }
+
+    private async _loadTimezone() {
+        const result = await getTimezone();
+        if (result.ok && result.data) {
+            this._timezone = result.data;
+        }
+    }
+
+    private _saveTimezone = async (event: Event) => {
+        event.preventDefault();
+        this._savingTimezone = true;
+        const result = await updateTimezone(this._timezone);
+        this._savingTimezone = false;
+
+        if (result.ok) {
+            this._timezoneSaved = true;
+            this.dispatchEvent(new CustomEvent("show-toast", {
+                detail: { type: "success", message: "Zona horaria actualizada correctamente" },
+                bubbles: true,
+                composed: true
+            }));
+            return;
+        }
+
+        this.dispatchEvent(new CustomEvent("show-toast", {
+            detail: { type: "error", message: "No hemos podido actualizar el valor. Inténtelo más tarde." },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    private _onTimezoneChange = (event: Event) => {
+        this._timezone = (event.target as HTMLSelectElement).value as TimezoneType;
+        this._timezoneSaved = false;
+    }
+
 
     static styles = [accountStyles]
 
@@ -93,23 +141,54 @@ export class AccountPage extends LitElement {
                 </div>
             </div>
 
-            <div class="info-card">
-                <h3 class="info-card-title">⊙ Información de la cuenta</h3>
-                <div class="info-row">
-                    <div class="info-row-icon">👤</div>
-                    <div>
-                        <p class="info-row-label">Titular</p>
-                        <p class="info-row-value">${name}</p>
+            <div class="grid">
+                <div class="info-card">
+                    <h3 class="info-card-title">⊙ Información de la cuenta</h3>
+                    <div class="info-row">
+                        <div class="info-row-icon">👤</div>
+                        <div>
+                            <p class="info-row-label">Titular</p>
+                            <p class="info-row-value">${name}</p>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-row-icon">⊟</div>
+                        <div>
+                            <p class="info-row-label">Número de cuenta</p>
+                            <p class="info-row-value">${this._showAccount ? accountNumber : maskedAccount}</p>
+                        </div>
+                    </div>
+                    <div class="account-type-badge">Cuenta Corriente Premium</div>
+                </div>
+                <div class="info-card">
+                    <h3 class="info-card-title">⊙ Zona horaria</h3>
+                    <div class="timezone-row">
+                        <div class="timezone-row-top">
+                            <div class="info-row-icon">🕐</div>
+                            <div style="flex:1">
+                                <p class="info-row-label">Zona horaria de la cuenta</p>
+                                <select
+                                    class="timezone-select"
+                                    @change=${this._onTimezoneChange}
+                                >
+                                    ${TIMEZONES.map(tz => html`
+                                        <option value=${tz} ?selected=${tz === this._timezone}>${tz}</option>
+                                    `)}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="timezone-row-actions">
+                            <button-form
+                                type="button"
+                                @click=${this._saveTimezone}
+                                .disabled=${this._savingTimezone}
+                                .variant=${"secondary"}
+                            >
+                                ${this._savingTimezone ? 'Guardando...' : this._timezoneSaved ? '✓ Guardado' : 'Guardar'}
+                            </button-form>
+                        </div>
                     </div>
                 </div>
-                <div class="info-row">
-                    <div class="info-row-icon">⊟</div>
-                    <div>
-                        <p class="info-row-label">Número de cuenta</p>
-                        <p class="info-row-value">${this._showAccount ? accountNumber : maskedAccount}</p>
-                    </div>
-                </div>
-                <div class="account-type-badge">Cuenta Corriente Premium</div>
             </div>
         </section>
     `

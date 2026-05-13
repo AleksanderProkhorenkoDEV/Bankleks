@@ -127,8 +127,7 @@ export class MovementsPage extends LitElement {
             {
                 key: 'transactionDate', label: 'Fecha',
                 render: (value: string) => {
-                    const [year, month, day] = value.split('-').map(Number);
-                    return new Date(year, month - 1, day).toLocaleDateString('es-ES');
+                    return new Date(value).toLocaleDateString('es-ES');
                 }
             },
         ];
@@ -162,7 +161,7 @@ export class MovementsPage extends LitElement {
                     @modal-submit=${this._handleModalSubmit}
                 >
                 </edit-transaction-modal>
-                `: 
+                `:
                 nothing
             }
         `;

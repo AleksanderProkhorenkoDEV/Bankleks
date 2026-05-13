@@ -42,7 +42,9 @@ public class UserService {
                         u.getId(),
                         u.getName(),
                         u.getEmail(),
-                        u.getRole().getName()));
+                        u.getRole().getName(),
+                        u.getAccount().getAccountNumber(),
+                        u.getAccount().getBalance()));
     }
 
     @Transactional

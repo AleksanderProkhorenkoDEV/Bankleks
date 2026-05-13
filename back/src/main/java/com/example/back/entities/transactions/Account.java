@@ -31,31 +31,31 @@ public class Account {
     @Column(nullable = false)
     private String accountNumber;
 
+    @Column(nullable = false, length = 50)
+    private String timezone = "UTC";
+
+    @Column(nullable = false)
+    private Double balanceReserved = 0D;
+
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
 
     @OneToMany(mappedBy = "accountOrigin", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Transaction> originTransactions = new ArrayList<>();
+    private List<ScheduledTransfer> originScheduledTransfers = new ArrayList<>();
 
     @OneToMany(mappedBy = "accountDestination", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Transaction> destinationTransactions = new ArrayList<>();
+    private List<ScheduledTransfer> destinationScheduledTransfers = new ArrayList<>();
 
     public Account() {
     }
 
-    public Account(Double balance, User user, String accountNumber) {
-
-        if (balance == null)
-            throw new IllegalArgumentException("El balance no puede ser nulo");
-        if (user == null)
-            throw new IllegalArgumentException("El user no puede ser nulo");
-        if (accountNumber == null)
-            throw new IllegalArgumentException("El número no puede ser nulo");
-
+    public Account(Double balance, String accountNumber, String timezone, User user) {
         this.balance = balance;
-        this.user = user;
         this.accountNumber = accountNumber;
+        this.timezone = timezone;
+        this.user = user;
+        this.balanceReserved = 0.0;
     }
 
 }

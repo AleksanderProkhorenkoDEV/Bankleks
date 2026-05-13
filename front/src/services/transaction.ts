@@ -1,5 +1,5 @@
 import type { ServiceResponse } from "../types/auth";
-import type { PageResponse, TransactionBody, TransactionResponse } from "../types/transactions";
+import type { PageResponse, ScheduledTransactionBody, TransactionBody, TransactionResponse } from "../types/transactions";
 import { request } from "./http";
 
 interface GlobalResponse {
@@ -53,6 +53,19 @@ export const updateTransaction = async (id: number, concept: string): Promise<Se
         return { ok: true };
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Error desconocido';
+        return { ok: false, error: message };
+    }
+}
+
+export const createScheduledTransaction = async (body: ScheduledTransactionBody): Promise<ServiceResponse> => {
+    try {
+        await request<GlobalResponse>('/transaction/create-scheduled', {
+            method: 'POST',
+            body: JSON.stringify(body)
+        });
+        return { ok: true };
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Error al programar la transacción';
         return { ok: false, error: message };
     }
 }

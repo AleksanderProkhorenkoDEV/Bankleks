@@ -17,5 +17,5 @@ export const request = async <T>(endpoint: string, options: RequestInit = {}): P
     });
 
     if (!response.ok) throw await response.json();
-    return response.json();
+    return response.status !== 204 ? response.json() : undefined as T;
 }

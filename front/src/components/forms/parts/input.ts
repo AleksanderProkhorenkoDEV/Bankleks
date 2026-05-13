@@ -2,7 +2,7 @@ import { customElement, property, state } from "lit/decorators.js";
 import { html, LitElement, nothing } from "lit";
 import { inputStyle } from "./input.style";
 
-type InputType = "text" | "number" | "email" | "hidden" | "password";
+type InputType = "text" | "number" | "email" | "hidden" | "password" | "date" | "time";
 
 @customElement("input-form")
 export class InputForm extends LitElement {

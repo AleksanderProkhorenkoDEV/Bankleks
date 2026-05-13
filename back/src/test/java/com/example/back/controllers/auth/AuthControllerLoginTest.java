@@ -9,11 +9,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.authentication.BadCredentialsException;
 
 import com.example.back.dto.auth.LoginRequestDTO;
+import com.example.back.dto.auth.LoginResponseDTO;
 import com.example.back.entities.auth.RefreshToken;
 
 import static org.hamcrest.Matchers.is;
@@ -24,20 +23,13 @@ class AuthControllerLoginTest extends AuthControllerBase {
         void shouldReturnTokenWhenCredentialsAreCorrect() throws Exception {
                 LoginRequestDTO request = new LoginRequestDTO("usuario@gmail.com", "123456");
 
-                UserDetails userDetails = User.withUsername("usuario@gmail.com")
-                                .password("123456")
-                                .authorities("ROLE_USER")
-                                .build();
-
                 RefreshToken mockRefreshToken = new RefreshToken();
                 mockRefreshToken.setToken("refresh-token-123");
 
-                when(authenticationManager.authenticate(any()))
-                                .thenReturn(new UsernamePasswordAuthenticationToken(
-                                                userDetails, null, userDetails.getAuthorities()));
+                LoginResponseDTO mockResponse = new LoginResponseDTO(
+                                "jwt-falso", "usuario@gmail.com", "CLIENT", 1L, "1234567890");
 
-                when(jwtService.generateToken("usuario@gmail.com", "CLIENT")).thenReturn("jwt-falso");
-                when(refreshTokenService.createRefreshToken("usuario@gmail.com")).thenReturn(mockRefreshToken);
+                when(authService.login(any(), any())).thenReturn(mockResponse);
 
                 mockMvc.perform(post("/auth/login")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -45,8 +37,7 @@ class AuthControllerLoginTest extends AuthControllerBase {
                                 .andDo(print())
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.token", is("jwt-falso")))
-                                .andExpect(jsonPath("$.refreshToken", is("refresh-token-123")))
-                                .andExpect(jsonPath("$.email", is("usuario@gmail.com")));
+                                .andExpect(jsonPath("$.userName", is("usuario@gmail.com")));
         }
 
         @Test
@@ -61,15 +52,14 @@ class AuthControllerLoginTest extends AuthControllerBase {
 
         @Test
         void shouldReturn401WhenCredentialsAreWrong() throws Exception {
-                LoginRequestDTO request = new LoginRequestDTO("usuario@gmail.com", "contraseña-incorrecta");
+                LoginRequestDTO request = new LoginRequestDTO("usuario@gmail.com", "wrongpassword");
 
-                when(authenticationManager.authenticate(any()))
-                                .thenThrow(new org.springframework.security.authentication.BadCredentialsException(
-                                                "Credenciales incorrectas"));
+                when(authService.login(any(), any()))
+                                .thenThrow(new BadCredentialsException("Credenciales incorrectas"));
 
                 mockMvc.perform(post("/auth/login")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request)))
-                                .andExpect(status().isUnauthorized());
+                                .andExpect(status().isUnauthorized()); 
         }
 }

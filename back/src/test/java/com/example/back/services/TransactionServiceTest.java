@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,9 +53,9 @@ public class TransactionServiceTest {
     void setUp() {
         user = new User("test", "test@gmail.com", "123456789", new Role());
         user.setId(1L);
-        destination = new Account(150.50, user, "1234567899876543211234");
+        destination = new Account(150.50, "1234567899876543211234", "UTC", user);
         destination.setId(1L);
-        origin = new Account(350.69, user, "9876543211234567899516");
+        origin = new Account(350.69, "9876543211234567899516", "UTC", user);
         origin.setId(2L);
     }
 
@@ -76,8 +76,8 @@ public class TransactionServiceTest {
 
     @Test
     void shouldReturnTransactionById() {
-        Transaction transaction = new Transaction("concept", 10.0, LocalDate.now(),
-                TransactionType.DEPOSIT, user, destination, null);
+        Transaction transaction = new Transaction("concept", 10.0, Instant.now(),
+                TransactionType.DEPOSIT, user, destination, null, null);
         when(transactionRepository.findById(1L)).thenReturn(Optional.of(transaction));
 
         Transaction result = transactionServices.getTransactionById(1L);
@@ -184,8 +184,8 @@ public class TransactionServiceTest {
 
     @Test
     void shouldUpdateConcept() {
-        Transaction transaction = new Transaction("old concept", 10.0, LocalDate.now(),
-                TransactionType.DEPOSIT, user, destination, null);
+        Transaction transaction = new Transaction("old concept", 10.0, Instant.now(),
+                TransactionType.DEPOSIT, user, destination, null, null);
         UpdateConceptRequestDTO request = new UpdateConceptRequestDTO("new concept", 1L);
 
         when(transactionRepository.findById(1L)).thenReturn(Optional.of(transaction));
