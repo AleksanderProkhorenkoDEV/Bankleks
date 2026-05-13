@@ -16,3 +16,14 @@ export interface AccountStats {
     totalExpense: number;
     balancePointDTO: BalancePoint[];
 }
+
+export interface AccountFormData {
+    timezone: TimezoneType
+}
+
+export type TimezoneType = 'UTC' |
+    'Europe/Madrid' |
+    'Europe/London' |
+    'America/New_York' |
+    'America/Los_Angeles' |
+    'Asia/Tokyo';
