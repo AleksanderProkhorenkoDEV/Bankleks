@@ -20,7 +20,8 @@ public class ScheduledTransferCron {
     private final AccountService accountService;
     private final TransactionServices transactionServices;
 
-    public ScheduledTransferCron(TransactionScheduledService transactionScheduledService, AccountService accountService, TransactionServices transactionServices) {
+    public ScheduledTransferCron(TransactionScheduledService transactionScheduledService, AccountService accountService,
+            TransactionServices transactionServices) {
         this.transactionScheduledService = transactionScheduledService;
         this.accountService = accountService;
         this.transactionServices = transactionServices;
@@ -47,7 +48,8 @@ public class ScheduledTransferCron {
                     scheduled.getConcept(),
                     scheduled.getAmount(),
                     scheduled.getAccountOrigin(),
-                    scheduled.getAccountDestination());
+                    scheduled.getAccountDestination(),
+                    scheduled);
 
             transactionScheduledService.markAsExecuted(scheduled, transaction);
 
