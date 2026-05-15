@@ -99,8 +99,24 @@ export class MovementsPage extends LitElement {
                 render: (value, row) => {
                     if (value === 'TRANSFER') {
                         const sent = row.originAccount?.accountNumber === userIban;
+                        const direction = sent ? '↑' : '↓';
+
+                        if (row.recurrenceType) {
+                            const recurrenceLabel: Record<string, string> = {
+                                BEGINNING_OF_MONTH: 'Recurrente (día 1)',
+                                MIDDLE_OF_MONTH: 'Recurrente (día 15)',
+                                END_OF_MONTH: 'Recurrente (fin de mes)',
+                            };
+                            return `${direction} ${recurrenceLabel[row.recurrenceType]}`;
+                        }
+
+                        if (row.scheduled) {
+                            return `${direction} Transferencia programada`;
+                        }
+
                         return sent ? '↑ Transferencia enviada' : '↓ Transferencia recibida';
                     }
+
                     const map: Record<string, string> = {
                         DEPOSIT: '↓ Ingreso',
                         WITHDRAWAL: '↑ Retirada',
