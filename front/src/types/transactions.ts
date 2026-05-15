@@ -28,6 +28,10 @@ export interface TransactionResponse {
     transactionType: string;
     amount: number;
     transactionDate: string;
+    originAccount?: { accountNumber: string };
+    destinationAccount?: { accountNumber: string };
+    scheduled: boolean;
+    recurrenceType: RecurrenceType | null;
 }
 
 export interface PageResponse<T> {
