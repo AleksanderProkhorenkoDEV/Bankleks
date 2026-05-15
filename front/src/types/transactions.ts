@@ -5,9 +5,12 @@ export interface TransactionFormData {
     destinationIban: string;
     type: TransactionType;
     isScheduled: boolean;
-    scheduledDate: string[];
+    scheduledDates: string[];
     scheduledTime: string;
     targetTimezone: string;
+    scheduledMode: ScheduledMode;
+    recurrence: RecurrenceType | null;
+    recurrenceEndDate: string;
 }
 
 
@@ -42,6 +45,11 @@ export interface ScheduledTransactionBody {
     originIban: string;
     destinationIban: string;
     targetTimezone: string;
-    scheduledTime: string;      
+    scheduledTime: string;
     scheduledDates: string[];
+    recurrence?: RecurrenceType;
+    recurrenceEndDate?: string;
 }
+
+export type ScheduledMode = 'dates' | 'recurrent';
+export type RecurrenceType = 'BEGINNING_OF_MONTH' | 'MIDDLE_OF_MONTH' | 'END_OF_MONTH';
