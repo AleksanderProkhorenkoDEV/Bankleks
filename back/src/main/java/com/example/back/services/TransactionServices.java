@@ -147,28 +147,52 @@ public class TransactionServices {
         Account originAccount = accountService.getAccountByIban(request.getOriginIban());
         Account destinationAccount = accountService.getAccountByIban(request.getDestinationIban());
 
-        double totalAmount = request.getAmount() * request.getScheduledDates().size();
-        validateAvailableBalance(originAccount, totalAmount);
+        Instant recurrenceEndDateUTC = request.getRecurrenceEndDate() != null
+                ? convertToUTC(request.getTargetTimezone(), request.getRecurrenceEndDate())
+                : null;
 
-        /* 
-         1 Convertimos la lista de fechas en Instants UTC 
-         2 Creamos con la fecha y el tiempo el LocalDateTiem y lo convertimos a UTC
-         3 con peek() ejecuta la acción por cada elemento sin transformarlo, así nos aseguramos de que las fechas sean válidas
-         4 con toList() forzamos que el stream sea una lista, sin esto no se ejecuta el map ni el peek
-        */
-        List<Instant> scheduledInstants = request.getScheduledDates().stream()
-                .map(date -> convertToUTC(
-                        request.getTargetTimezone(),
-                        LocalDateTime.parse(date + "T" + request.getScheduledTime())))
-                .peek(this::validateFutureDate)
-                .toList();
+        if (request.getRecurrence() != null) {
+            // Modo recurrente — solo necesita una fecha de inicio
+            LocalDateTime startDateTime = LocalDateTime.parse(
+                    request.getScheduledDates().get(0) + "T" + request.getScheduledTime());
+            Instant scheduledAtUTC = convertToUTC(request.getTargetTimezone(), startDateTime);
 
-        for (Instant scheduledAtUTC : scheduledInstants) {
+            validateFutureDate(scheduledAtUTC);
+            validateAvailableBalance(originAccount, request.getAmount());
+
             accountService.addReservedBalance(originAccount, request.getAmount());
             transactionScheduledService.createScheduledTransfer(
                     originAccount, destinationAccount,
                     request.getAmount(), request.getConcept(),
-                    scheduledAtUTC, request.getTargetTimezone());
+                    scheduledAtUTC, request.getTargetTimezone(),
+                    request.getRecurrence(), recurrenceEndDateUTC);
+        } else {
+            // Modo fechas sueltas o rango
+            double totalAmount = request.getAmount() * request.getScheduledDates().size();
+            validateAvailableBalance(originAccount, totalAmount);
+
+            /*
+             * 1. Convertimos la lista de fechas en Instants UTC
+             * 2. Creamos con la fecha y el tiempo el LocalDateTime y lo convertimos a UTC
+             * 3. Con peek() validamos cada fecha sin transformarla
+             * 4. Con toList() forzamos la evaluación del stream — sin esto map y peek no se
+             * ejecutan
+             */
+            List<Instant> scheduledInstants = request.getScheduledDates().stream()
+                    .map(date -> convertToUTC(
+                            request.getTargetTimezone(),
+                            LocalDateTime.parse(date + "T" + request.getScheduledTime())))
+                    .peek(this::validateFutureDate)
+                    .toList();
+
+            for (Instant scheduledAtUTC : scheduledInstants) {
+                accountService.addReservedBalance(originAccount, request.getAmount());
+                transactionScheduledService.createScheduledTransfer(
+                        originAccount, destinationAccount,
+                        request.getAmount(), request.getConcept(),
+                        scheduledAtUTC, request.getTargetTimezone(),
+                        null, null);
+            }
         }
     }
 
