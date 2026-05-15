@@ -15,6 +15,7 @@ import com.example.back.dto.transaction.transaction.CreateTransactionRequestDTO;
 import com.example.back.dto.transaction.transaction.CreateTransactionScheduledRequestDTO;
 import com.example.back.dto.transaction.transaction.UpdateConceptRequestDTO;
 import com.example.back.entities.transactions.Account;
+import com.example.back.entities.transactions.ScheduledTransfer;
 import com.example.back.entities.transactions.Transaction;
 import com.example.back.entities.user.User;
 import com.example.back.enums.TransactionType;
@@ -222,13 +223,13 @@ public class TransactionServices {
 
     @Transactional
     public Transaction createTransferTransaction(String concept, Double amount,
-            Account origin, Account destination) {
+            Account origin, Account destination, ScheduledTransfer scheduledTransfer) {
         return transactionRepository.save(new Transaction(
                 concept, amount, Instant.now(),
                 TransactionType.TRANSFER,
                 origin.getUser(),
                 destination,
                 origin,
-                null));
+                scheduledTransfer));
     }
 }
