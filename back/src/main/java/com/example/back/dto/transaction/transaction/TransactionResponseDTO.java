@@ -4,6 +4,7 @@ import java.time.Instant;
 
 import com.example.back.dto.transaction.account.AccountSummaryDTO;
 import com.example.back.dto.user.UserSummaryDTO;
+import com.example.back.enums.RecurrenceType;
 import com.example.back.enums.TransactionType;
 
 import lombok.Data;
@@ -19,4 +20,6 @@ public class TransactionResponseDTO {
     private AccountSummaryDTO originAccount;
     private AccountSummaryDTO destinationAccount;
     private UserSummaryDTO user;
+    private boolean scheduled;
+    private RecurrenceType recurrenceType;
 }
