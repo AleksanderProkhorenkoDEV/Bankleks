@@ -2,6 +2,7 @@ package com.example.back.entities.transactions;
 
 import java.time.Instant;
 
+import com.example.back.enums.RecurrenceType;
 import com.example.back.enums.ScheduledTransactionType;
 
 import jakarta.persistence.Column;
@@ -55,11 +56,19 @@ public class ScheduledTransfer {
     @Column(nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true)
+    private RecurrenceType recurrence;
+
+    @Column(nullable = true)
+    private Instant recurrenceEndDate;
+
     public ScheduledTransfer() {
     }
 
     public ScheduledTransfer(Account accountOrigin, Account accountDestination,
-            Double amount, String concept, Instant scheduledAt, String targetTimezone) {
+            Double amount, String concept, Instant scheduledAt, String targetTimezone,
+            RecurrenceType recurrence, Instant recurrenceEndDate) {
         this.accountOrigin = accountOrigin;
         this.accountDestination = accountDestination;
         this.amount = amount;
@@ -67,6 +76,8 @@ public class ScheduledTransfer {
         this.scheduledAt = scheduledAt;
         this.targetTimezone = targetTimezone;
         this.status = ScheduledTransactionType.SCHEDULED;
+        this.recurrence = recurrence;
+        this.recurrenceEndDate = recurrenceEndDate;
     }
 
 }
