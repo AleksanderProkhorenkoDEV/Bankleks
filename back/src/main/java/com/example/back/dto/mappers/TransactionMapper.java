@@ -23,6 +23,10 @@ public class TransactionMapper {
         dto.setOriginAccount(toAccountSummary(transaction.getAccountOrigin()));
         dto.setDestinationAccount(toAccountSummary(transaction.getAccountDestination()));
         dto.setUser(toUserSummary(transaction.getUser()));
+        dto.setScheduled(transaction.getScheduledTransfer() != null);
+        dto.setRecurrenceType(transaction.getScheduledTransfer() != null
+                ? transaction.getScheduledTransfer().getRecurrence()
+                : null);
 
         return dto;
     }
