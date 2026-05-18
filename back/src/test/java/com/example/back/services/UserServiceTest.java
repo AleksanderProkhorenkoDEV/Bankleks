@@ -23,6 +23,7 @@ import org.springframework.data.domain.PageRequest;
 
 import com.example.back.dto.user.UserResponseDTO;
 import com.example.back.entities.auth.Role;
+import com.example.back.entities.transactions.Account;
 import com.example.back.entities.user.User;
 import com.example.back.repositories.RefreshTokenRepository;
 import com.example.back.repositories.TransactionRepository;
@@ -99,6 +100,10 @@ public class UserServiceTest {
         user2.setId(2L);
 
         Page<User> userPage = new PageImpl<>(List.of(user, user2), PageRequest.of(0, 10), 2);
+        Account account1 = new Account(500.0, "1111111111111111", "UTC", user);
+        Account account2 = new Account(300.0, "2222222222222222", "UTC", user2);
+        user.setAccount(account1);
+        user2.setAccount(account2);
         when(userRepository.findAll(PageRequest.of(0, 10))).thenReturn(userPage);
 
         Page<UserResponseDTO> result = userService.getAllUsers(0, 10);
