@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -172,6 +173,7 @@ public class AccountServiceTest {
                 var points = stats.getBalancePointDTO();
                 // el último punto debe ser el balance actual y la fecha de hoy
                 assertEquals(account.getBalance(), points.get(points.size() - 1).getBalance());
-                assertEquals(LocalDate.now(), points.get(points.size() - 1).getDate());
+                assertEquals(LocalDate.now(), points.get(points.size() - 1).getDate()
+                                .atZone(ZoneId.systemDefault()).toLocalDate());
         }
 }
