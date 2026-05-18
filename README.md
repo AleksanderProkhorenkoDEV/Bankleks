@@ -1,6 +1,6 @@
 # Bankleks 🏦
 
-A fullstack banking application built as a study project using **Lit** on the frontend and **Spring Boot** on the backend. It allows users to manage bank accounts, perform transactions, and administrators to manage users through a control panel.
+A fullstack banking application built as a study project using **Lit** on the frontend and **Spring Boot** on the backend. It allows users to manage bank accounts, perform transactions, schedule transfers, and administrators to manage users through a control panel.
 
 ---
 
@@ -65,16 +65,25 @@ src/main/java/com/example/back/
   services/
     AuthService.java
     TransactionService.java
+    TransactionScheduledService.java
     UserService.java
     AccountService.java
     JwtService.java
     RefreshTokenService.java
+  scheduler/
+    ScheduledTransferCron.java    ← executes pending scheduled transfers
+    InsertMoneyCron.java          ← injects funds into a random account every 5 min
   entities/
     user/User.java
     transactions/Account.java
     transactions/Transaction.java
+    transactions/ScheduledTransfer.java
     auth/RefreshToken.java
     auth/Role.java
+  enums/
+    TransactionType.java
+    RecurrenceType.java           ← BEGINNING_OF_MONTH, MIDDLE_OF_MONTH, END_OF_MONTH
+    ScheduledTransactionType.java ← SCHEDULED, EXECUTING, EXECUTED, FAILED
   dto/
     auth/
     transaction/
@@ -109,8 +118,8 @@ POST /auth/logout     → invalidates the refresh token and clears the cookie
 
 | Role | Access |
 |------|--------|
-| `ROLE_CLIENT` | Account summary, movements, transactions |
-| `ROLE_ADMINISTRATOR` | All of the above + admin panel, delete users and transactions |
+| `CLIENT` | Account summary, movements, transactions, scheduled transfers |
+| `ADMINISTRATOR` | All of the above + admin panel, delete users and transactions |
 
 ---
 
@@ -122,11 +131,38 @@ POST /auth/logout     → invalidates the refresh token and clears the cookie
 - Perform transactions: deposit, withdrawal and transfer
 - Edit the concept of a transaction
 - IBAN validation on transfers
+- **Schedule future transfers** on specific dates or as recurring monthly transfers
+- Recurrence options: beginning, middle, or end of month
+- Reserved balance system — funds are locked when a transfer is scheduled
 
 ### Administrator
 - Panel with a full user listing
 - Delete users (with cascaded deletion of account and transactions)
 - Delete any transaction (with automatic balance reversal)
+
+---
+
+## Scheduled Transfers
+
+Users can schedule transfers to be executed at a future date. The system supports two modes:
+
+- **Specific dates** — one transfer per selected date, with a shared execution time
+- **Recurring** — repeats monthly at the beginning, middle, or end of the month, with an optional end date
+
+When a transfer is scheduled, the amount is reserved from the origin account balance. A cron job runs every minute and processes all pending transfers, handling execution, balance updates, and failure recovery automatically.
+
+```
+Recurrence types:
+  BEGINNING_OF_MONTH  → 1st of next month
+  MIDDLE_OF_MONTH     → 15th of next month
+  END_OF_MONTH        → last day of next month
+```
+
+```
+Transfer lifecycle:
+  SCHEDULED → EXECUTING → EXECUTED
+                       ↘ FAILED
+```
 
 ---
 
@@ -137,10 +173,29 @@ User (1) ──── (1) Account
 User (1) ──── (N) Transaction
 Account (1) ── (N) Transaction [as origin]
 Account (1) ── (N) Transaction [as destination]
+Account (1) ── (N) ScheduledTransfer [as origin]
+Account (1) ── (N) ScheduledTransfer [as destination]
+ScheduledTransfer (1) ── (0..1) Transaction [executed result]
 User (1) ──── (N) RefreshToken
 ```
 
 A bank account with a unique IBAN is automatically created when a new user registers.
+
+---
+
+## Test Coverage
+
+The backend has **85% overall test coverage**, with unit tests covering all services, schedulers, and controllers.
+
+| Component | What's tested |
+|---|---|
+| `TransactionServices` | CRUD, deposit/withdrawal/transfer, error paths |
+| `TransactionScheduledService` | Lifecycle state transitions, recurrence calculation |
+| `AccountService` | Balance operations, reserved balance |
+| `UserService` | User management, DTO mapping |
+| `ScheduledTransferCron` | Happy path, failure recovery, order of operations |
+| `InsertMoneyCron` | Random account funding |
+| `AdminController` | Pagination, delete, auth |
 
 ---
 
@@ -212,3 +267,5 @@ app.cookie.secure=false
 - **Decoupled components** — forms communicate upward via Custom Events with `bubbles: true` and `composed: true`, following a unidirectional data flow
 - **Generic reusable table** — `data-table` accepts columns with custom `render` functions, externally controlled pagination, and edit/delete events
 - **Backend-driven authorization** — user identity is always extracted from the JWT on the server side, never trusted from the request body
+- **Reserved balance** — scheduled transfers lock funds at creation time, preventing overdrafts before execution
+- **Cron-based execution** — scheduled transfers are processed by a `@Scheduled` job every minute with atomic per-transfer error handling, so a failure on one transfer does not affect the rest
