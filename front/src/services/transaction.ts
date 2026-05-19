@@ -1,5 +1,5 @@
 import type { ServiceResponse } from "../types/auth";
-import type { PageResponse, ScheduledTransactionBody, TransactionBody, TransactionResponse } from "../types/transactions";
+import type { PageResponse, ScheduledTransactionBody, ScheduledTransactionResponse, TransactionBody, TransactionResponse } from "../types/transactions";
 import { request } from "./http";
 
 interface GlobalResponse {
@@ -66,6 +66,28 @@ export const createScheduledTransaction = async (body: ScheduledTransactionBody)
         return { ok: true };
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Error al programar la transacción';
+        return { ok: false, error: message };
+    }
+}
+
+export const getFailedTransfers = async (page: number): Promise<ServiceResponse<PageResponse<ScheduledTransactionResponse>>> => {
+    try {
+        const data = await request<PageResponse<ScheduledTransactionResponse>>(
+            `/admin/scheduled-transfers/failed?page=${page}`
+        );
+        return { ok: true, data };
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Error al cargar las transferencias fallidas';
+        return { ok: false, error: message };
+    }
+}
+
+export const retryTransfer = async (id: number): Promise<ServiceResponse> => {
+    try {
+        await request<void>(`/admin/scheduled-transfers/${id}/retry`, { method: 'POST' });
+        return { ok: true };
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Error al reintentar la transferencia';
         return { ok: false, error: message };
     }
 }
