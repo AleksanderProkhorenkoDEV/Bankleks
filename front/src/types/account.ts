@@ -27,3 +27,7 @@ export type TimezoneType = 'UTC' |
     'America/New_York' |
     'America/Los_Angeles' |
     'Asia/Tokyo';
+
+export interface AccountSummary {
+    accountNumber: string;
+}

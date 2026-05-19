@@ -1,3 +1,5 @@
+import type { AccountSummary } from "./account";
+
 export interface TransactionFormData {
     concept: string;
     amount: string;
@@ -57,3 +59,17 @@ export interface ScheduledTransactionBody {
 
 export type ScheduledMode = 'dates' | 'recurrent';
 export type RecurrenceType = 'BEGINNING_OF_MONTH' | 'MIDDLE_OF_MONTH' | 'END_OF_MONTH';
+
+export interface ScheduledTransactionResponse {
+    id: number;
+    amount: number;
+    concept: string;
+    accountOrigin: AccountSummary;
+    accountDestination: AccountSummary;
+    scheduledAt: string;
+    targetTimezone: string;
+    status: 'SCHEDULED' | 'EXECUTING' | 'EXECUTED' | 'FAILED';
+    recurrence: 'BEGINNING_OF_MONTH' | 'MIDDLE_OF_MONTH' | 'END_OF_MONTH' | null;
+    recurrenceEndDate: string | null;
+    createdAt: string;
+}
