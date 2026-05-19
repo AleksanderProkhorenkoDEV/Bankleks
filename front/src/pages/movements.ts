@@ -143,7 +143,13 @@ export class MovementsPage extends LitElement {
             {
                 key: 'transactionDate', label: 'Fecha',
                 render: (value: string) => {
-                    return new Date(value).toLocaleDateString('es-ES');
+                    return new Date(value).toLocaleString('es-ES', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                    });
                 }
             },
         ];

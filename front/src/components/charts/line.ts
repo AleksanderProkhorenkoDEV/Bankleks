@@ -49,8 +49,8 @@ export class LineChart extends LitElement {
     }
 
     private _formatDate(dateStr: string): string {
-        const [y, m, d] = dateStr.split('-').map(Number);
-        return new Date(y, m - 1, d).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
     }
 
     private _setOptions() {
