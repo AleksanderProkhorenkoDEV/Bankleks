@@ -6,6 +6,9 @@ import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import com.example.back.entities.transactions.Account;
@@ -13,15 +16,26 @@ import com.example.back.entities.transactions.ScheduledTransfer;
 import com.example.back.entities.transactions.Transaction;
 import com.example.back.enums.RecurrenceType;
 import com.example.back.enums.ScheduledTransactionType;
+import com.example.back.enums.TransactionType;
 import com.example.back.repositories.ScheduledTransferRepository;
+import com.example.back.repositories.TransactionRepository;
+
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 
 @Service
 public class TransactionScheduledService {
 
     private final ScheduledTransferRepository scheduledTransferRepository;
+    private final AccountService accountService;
+    private final TransactionRepository transactionRepository;
 
-    public TransactionScheduledService(ScheduledTransferRepository scheduledTransferRepository) {
+    public TransactionScheduledService(ScheduledTransferRepository scheduledTransferRepository,
+            AccountService accountService,
+            TransactionRepository transactionRepository) {
         this.scheduledTransferRepository = scheduledTransferRepository;
+        this.accountService = accountService;
+        this.transactionRepository = transactionRepository;
     }
 
     public void createScheduledTransfer(Account accountOrigin, Account accountDestination,
@@ -95,5 +109,49 @@ public class TransactionScheduledService {
                 executed.getTargetTimezone(),
                 executed.getRecurrence(),
                 executed.getRecurrenceEndDate()));
+    }
+
+    public Page<ScheduledTransfer> getFailedScheduledTransfers(Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return scheduledTransferRepository.findAllFailed(pageable);
+    }
+
+    @Transactional
+    public void retryFailedScheduledTransfer(Long id) {
+        ScheduledTransfer scheduled = scheduledTransferRepository.findById(id)
+                .orElseThrow(EntityNotFoundException::new);
+
+        if (scheduled.getStatus() != ScheduledTransactionType.FAILED) {
+            throw new IllegalStateException("Solo se pueden reintentar transferencias con estado FAILED");
+        }
+
+        Account origin = scheduled.getAccountOrigin();
+        Account destination = scheduled.getAccountDestination();
+
+        // Validar saldo disponible (balance - reservado)
+        double available = origin.getBalance() - origin.getBalanceReserved();
+        if (available < scheduled.getAmount()) {
+            throw new IllegalArgumentException("Saldo insuficiente para reintentar la transferencia");
+        }
+
+        // Ejecutar movimiento de fondos
+        accountService.subtractBalance(origin, scheduled.getAmount());
+        accountService.addBalance(destination, scheduled.getAmount());
+
+        // Crear la transacción asociada
+        Transaction transaction = transactionRepository.save(new Transaction(
+                scheduled.getConcept(),
+                scheduled.getAmount(),
+                Instant.now(),
+                TransactionType.TRANSFER,
+                origin.getUser(),
+                destination,
+                origin,
+                scheduled));
+
+        // Marcar como ejecutada
+        scheduled.setStatus(ScheduledTransactionType.EXECUTED);
+        scheduled.setTransaction(transaction);
+        scheduledTransferRepository.save(scheduled);
     }
 }
