@@ -170,7 +170,7 @@ export class TransactionForm extends LitElement {
         if (this._scheduledMode === 'recurrent') {
             body.recurrence = this._formData.recurrence!;
             if (this._formData.recurrenceEndDate) {
-                body.recurrenceEndDate = this._formData.recurrenceEndDate;
+                body.recurrenceEndDate = this._formData.recurrenceEndDate + "T00:00:00";
             }
         }
 
