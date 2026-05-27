@@ -51,8 +51,8 @@ public class CreateTransactionScheduledRequestDTO {
             @NotNull(message = "{validation.notNull}") String targetTimezone,
             @NotNull(message = "{validation.notNull}") String scheduledTime,
             @NotNull(message = "{validation.notNull}") List<String> scheduledDates,
-            @Min(value = 1, message = "{validation.min}") @Max(value = 365, message = "{validation.max}") Integer recurrenceInterval,
-            RecurrenceType recurrence, LocalDateTime recurrenceEndDate) {
+            @Min(value = 1, message = "{validation.min}") @Max(value = 365, message = "{validation.max}") RecurrenceType recurrence,
+            LocalDateTime recurrenceEndDate, Integer recurrenceInterval) {
         this.concept = concept;
         this.amount = amount;
         this.destinationIban = destinationIban;
@@ -60,9 +60,9 @@ public class CreateTransactionScheduledRequestDTO {
         this.targetTimezone = targetTimezone;
         this.scheduledTime = scheduledTime;
         this.scheduledDates = scheduledDates;
-        this.recurrenceInterval = recurrenceInterval;
         this.recurrence = recurrence;
         this.recurrenceEndDate = recurrenceEndDate;
+        this.recurrenceInterval = recurrenceInterval;
     }
 
 }

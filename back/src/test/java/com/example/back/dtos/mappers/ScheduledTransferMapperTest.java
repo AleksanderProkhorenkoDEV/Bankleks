@@ -41,7 +41,8 @@ public class ScheduledTransferMapperTest {
                 SCHEDULED_AT,
                 "Europe/Madrid",
                 RecurrenceType.BEGINNING_OF_MONTH,
-                RECURRENCE_END);
+                RECURRENCE_END,
+                null);
         transfer.setId(1L);
         transfer.setStatus(ScheduledTransactionType.FAILED);
         return transfer;
