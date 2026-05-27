@@ -56,7 +56,7 @@ public class TransactonScheduledServiceTest {
         // 2026-01-15T10:00:00Z — fecha fija para cálculos predecibles
         Instant fixedDate = Instant.parse("2026-01-15T10:00:00Z");
         scheduledTransfer = new ScheduledTransfer(origin, destination, 100.0, "pago",
-                fixedDate, "UTC", RecurrenceType.BEGINNING_OF_MONTH, null);
+                fixedDate, "UTC", RecurrenceType.BEGINNING_OF_MONTH, null, null);
     }
 
     // ─────────────────────────────────────────────
@@ -69,7 +69,7 @@ public class TransactonScheduledServiceTest {
 
         transactionScheduledService.createScheduledTransfer(
                 origin, destination, 50.0, "concepto", scheduledAt, "UTC",
-                RecurrenceType.MIDDLE_OF_MONTH, null);
+                RecurrenceType.MIDDLE_OF_MONTH, null, null);
 
         ArgumentCaptor<ScheduledTransfer> captor = ArgumentCaptor.forClass(ScheduledTransfer.class);
         verify(scheduledTransferRepository).save(captor.capture());
@@ -113,10 +113,6 @@ public class TransactonScheduledServiceTest {
         assertTrue(result.isEmpty());
     }
 
-    // ─────────────────────────────────────────────
-    // markAsExecuting
-    // ─────────────────────────────────────────────
-
     @Test
     void shouldMarkTransferAsExecuting() {
         transactionScheduledService.markAsExecuting(scheduledTransfer);
@@ -124,10 +120,6 @@ public class TransactonScheduledServiceTest {
         assertEquals(ScheduledTransactionType.EXECUTING, scheduledTransfer.getStatus());
         verify(scheduledTransferRepository).save(scheduledTransfer);
     }
-
-    // ─────────────────────────────────────────────
-    // markAsExecuted
-    // ─────────────────────────────────────────────
 
     @Test
     void shouldMarkTransferAsExecutedAndLinkTransaction() {
@@ -139,10 +131,6 @@ public class TransactonScheduledServiceTest {
         assertEquals(transaction, scheduledTransfer.getTransaction());
         verify(scheduledTransferRepository).save(scheduledTransfer);
     }
-
-    // ─────────────────────────────────────────────
-    // markAsFailed
-    // ─────────────────────────────────────────────
 
     @Test
     void shouldMarkTransferAsFailed() {
@@ -159,7 +147,7 @@ public class TransactonScheduledServiceTest {
     @Test
     void shouldReturnFalseWhenRecurrenceIsNull() {
         ScheduledTransfer noRecurrence = new ScheduledTransfer(origin, destination, 100.0, "pago",
-                Instant.now(), "UTC", null, null);
+                Instant.now(), "UTC", null, null, null);
 
         assertFalse(transactionScheduledService.hasNextRecurrence(noRecurrence));
     }
