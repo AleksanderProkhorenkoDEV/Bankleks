@@ -13,6 +13,7 @@ export interface TransactionFormData {
     scheduledMode: ScheduledMode;
     recurrence: RecurrenceType | null;
     recurrenceEndDate: string;
+    recurrenceInterval: number | null; 
 }
 
 
@@ -55,10 +56,18 @@ export interface ScheduledTransactionBody {
     scheduledDates: string[];
     recurrence?: RecurrenceType;
     recurrenceEndDate?: string;
+    recurrenceInterval?: number; 
 }
 
 export type ScheduledMode = 'dates' | 'recurrent';
-export type RecurrenceType = 'BEGINNING_OF_MONTH' | 'MIDDLE_OF_MONTH' | 'END_OF_MONTH';
+export type RecurrenceType =
+    | 'BEGINNING_OF_MONTH'
+    | 'MIDDLE_OF_MONTH'
+    | 'END_OF_MONTH'
+    | 'EVERY_X_DAYS'
+    | 'EVERY_X_WEEKS'
+    | 'EVERY_X_MONTHS';
+
 
 export interface ScheduledTransactionResponse {
     id: number;
@@ -69,7 +78,8 @@ export interface ScheduledTransactionResponse {
     scheduledAt: string;
     targetTimezone: string;
     status: 'SCHEDULED' | 'EXECUTING' | 'EXECUTED' | 'FAILED';
-    recurrence: 'BEGINNING_OF_MONTH' | 'MIDDLE_OF_MONTH' | 'END_OF_MONTH' | null;
+    recurrence: RecurrenceType | null;
     recurrenceEndDate: string | null;
+    recurrenceInterval: number | null; 
     createdAt: string;
 }
