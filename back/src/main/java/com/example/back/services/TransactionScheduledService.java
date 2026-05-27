@@ -126,6 +126,7 @@ public class TransactionScheduledService {
                 executed.getRecurrence(),
                 executed.getRecurrenceEndDate(),
                 executed.getRecurrenceInterval()));
+        accountService.addReservedBalance(executed.getAccountOrigin(), executed.getAmount());
     }
 
     public Page<ScheduledTransfer> getFailedScheduledTransfers(Integer page, Integer size) {
