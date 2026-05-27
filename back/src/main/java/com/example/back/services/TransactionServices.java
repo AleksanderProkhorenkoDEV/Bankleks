@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +19,7 @@ import com.example.back.entities.transactions.Account;
 import com.example.back.entities.transactions.ScheduledTransfer;
 import com.example.back.entities.transactions.Transaction;
 import com.example.back.entities.user.User;
+import com.example.back.enums.RecurrenceType;
 import com.example.back.enums.TransactionType;
 import com.example.back.repositories.TransactionRepository;
 
@@ -140,10 +142,22 @@ public class TransactionServices {
         transactionRepository.delete(transaction);
     }
 
+    private static final Set<RecurrenceType> INTERVAL_REQUIRED = Set.of(
+            RecurrenceType.EVERY_X_DAYS,
+            RecurrenceType.EVERY_X_WEEKS,
+            RecurrenceType.EVERY_X_MONTHS);
+
     @Transactional
     public void createScheduledTransaction(CreateTransactionScheduledRequestDTO request, String email) {
 
         validateTimezone(request.getTargetTimezone());
+
+        if (request.getRecurrence() != null
+                && INTERVAL_REQUIRED.contains(request.getRecurrence())
+                && request.getRecurrenceInterval() == null) {
+            throw new IllegalArgumentException(
+                    "recurrenceInterval es obligatorio para el tipo " + request.getRecurrence());
+        }
 
         Account originAccount = accountService.getAccountByIban(request.getOriginIban());
         Account destinationAccount = accountService.getAccountByIban(request.getDestinationIban());
@@ -153,7 +167,6 @@ public class TransactionServices {
                 : null;
 
         if (request.getRecurrence() != null) {
-            // Modo recurrente — solo necesita una fecha de inicio
             LocalDateTime startDateTime = LocalDateTime.parse(
                     request.getScheduledDates().get(0) + "T" + request.getScheduledTime());
             Instant scheduledAtUTC = convertToUTC(request.getTargetTimezone(), startDateTime);
@@ -166,7 +179,8 @@ public class TransactionServices {
                     originAccount, destinationAccount,
                     request.getAmount(), request.getConcept(),
                     scheduledAtUTC, request.getTargetTimezone(),
-                    request.getRecurrence(), recurrenceEndDateUTC);
+                    request.getRecurrence(), recurrenceEndDateUTC,
+                    request.getRecurrenceInterval());
         } else {
             // Modo fechas sueltas o rango
             double totalAmount = request.getAmount() * request.getScheduledDates().size();
@@ -192,7 +206,7 @@ public class TransactionServices {
                         originAccount, destinationAccount,
                         request.getAmount(), request.getConcept(),
                         scheduledAtUTC, request.getTargetTimezone(),
-                        null, null);
+                        null, null, null); // <-- añadido null para recurrenceInterval
             }
         }
     }
