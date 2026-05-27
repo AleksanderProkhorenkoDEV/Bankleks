@@ -53,6 +53,10 @@ public class ScheduledTransferCron {
 
             transactionScheduledService.markAsExecuted(scheduled, transaction);
 
+            if (transactionScheduledService.hasNextRecurrence(scheduled)) {
+                transactionScheduledService.scheduleNextRecurrence(scheduled);
+            }
+
         } catch (Exception e) {
             accountService.releaseReservedBalance(scheduled.getAccountOrigin(), scheduled.getAmount());
             transactionScheduledService.markAsFailed(scheduled);
