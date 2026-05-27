@@ -1,4 +1,4 @@
-import type { ScheduledMode, ScheduledTransactionBody, TransactionBody, TransactionFormData, TransactionType } from "../../types/transactions";
+import type { RecurrenceType, ScheduledMode, ScheduledTransactionBody, TransactionBody, TransactionFormData, TransactionType } from "../../types/transactions";
 import { createScheduledTransaction, createTransaction } from "../../services/transaction";
 import { isIBAN, isPositive, required, validate } from "../../utils/validatior";
 import { customElement, query, state } from "lit/decorators.js";
@@ -25,13 +25,19 @@ export class TransactionForm extends LitElement {
     @state() private _pendingDate: string = '';
     @state() private _rangeStart: string = '';
     @state() private _formKey: number = 0;
+    @state() private _recurrence: RecurrenceType | null = null;
 
     private _formData: TransactionFormData = {
         concept: "", amount: "0.00", originIban: "", destinationIban: "",
         type: "TRANSFER", isScheduled: false,
         scheduledDates: [], scheduledTime: "", targetTimezone: "Europe/Madrid",
-        scheduledMode: 'dates', recurrence: null, recurrenceEndDate: ""
+        scheduledMode: 'dates', recurrence: null, recurrenceEndDate: "",
+        recurrenceInterval: null
     };
+
+    private _intervalRecurrenceTypes = new Set<RecurrenceType>([
+        'EVERY_X_DAYS', 'EVERY_X_WEEKS', 'EVERY_X_MONTHS'
+    ]);
 
     private _timezones = [
         { value: 'Europe/Madrid', label: 'Madrid (UTC+1/+2)' },
@@ -46,6 +52,9 @@ export class TransactionForm extends LitElement {
         { value: 'BEGINNING_OF_MONTH', label: 'Primeros de mes (día 1)' },
         { value: 'MIDDLE_OF_MONTH', label: 'Mitad de mes (día 15)' },
         { value: 'END_OF_MONTH', label: 'Finales de mes (último día)' },
+        { value: 'EVERY_X_DAYS', label: 'Cada X días' },
+        { value: 'EVERY_X_WEEKS', label: 'Cada X semanas' },
+        { value: 'EVERY_X_MONTHS', label: 'Cada X meses' },
     ];
 
     private _handleInputChange = (e: CustomEvent) => {
@@ -58,6 +67,12 @@ export class TransactionForm extends LitElement {
     private _handleModalInputChange = (e: CustomEvent) => {
         const { name, value } = e.detail;
         this._formData = { ...this._formData, [name]: value };
+        if (name === 'recurrence') {
+            this._recurrence = value as RecurrenceType;
+            if (!this._intervalRecurrenceTypes.has(value)) {
+                this._formData = { ...this._formData, recurrenceInterval: null };
+            }
+        }
         if (name === 'scheduledDate') this._pendingDate = value;
         if (name === 'rangeStart') this._rangeStart = value;
     }
@@ -70,7 +85,14 @@ export class TransactionForm extends LitElement {
     private _handleModeChange = (mode: ScheduledMode) => {
         this._scheduledMode = mode;
         this._scheduledDates = [];
-        this._formData = { ...this._formData, scheduledMode: mode, scheduledDates: [], recurrence: null };
+        this._recurrence = null;
+        this._formData = {
+            ...this._formData,
+            scheduledMode: mode,
+            scheduledDates: [],
+            recurrence: null,
+            recurrenceInterval: null
+        };
     }
 
     private _addDate = () => {
@@ -151,6 +173,12 @@ export class TransactionForm extends LitElement {
             if (!this._formData.scheduledTime) { isValid = false; }
             if (this._scheduledMode === 'dates' && this._scheduledDates.length === 0) { isValid = false; }
             if (this._scheduledMode === 'recurrent' && !this._formData.recurrence) { isValid = false; }
+            if (this._scheduledMode === 'recurrent'
+                && this._formData.recurrence
+                && this._intervalRecurrenceTypes.has(this._formData.recurrence)
+                && !this._formData.recurrenceInterval) {
+                isValid = false;
+            }
         }
 
         return isValid;
@@ -169,8 +197,8 @@ export class TransactionForm extends LitElement {
 
         if (this._scheduledMode === 'recurrent') {
             body.recurrence = this._formData.recurrence!;
-            if (this._formData.recurrenceEndDate) {
-                body.recurrenceEndDate = this._formData.recurrenceEndDate + "T00:00:00";
+            if (this._formData.recurrence && this._intervalRecurrenceTypes.has(this._formData.recurrence)) {
+                body.recurrenceInterval = this._formData.recurrenceInterval ?? undefined;
             }
         }
 
@@ -243,23 +271,33 @@ export class TransactionForm extends LitElement {
     }
 
     private _renderRecurrentMode() {
+        const showInterval = this._formData.recurrence != null
+            && this._intervalRecurrenceTypes.has(this._formData.recurrence);
+
+        const intervalLabel: Record<string, string> = {
+            'EVERY_X_DAYS': 'Repetir cada (días)',
+            'EVERY_X_WEEKS': 'Repetir cada (semanas)',
+            'EVERY_X_MONTHS': 'Repetir cada (meses)',
+        };
+
         return html`
-            <select-form name="recurrence" label="Repetir"
-                .options=${this._recurrenceOptions}
-                @input-change=${this._handleModalInputChange}>
-            </select-form>
+        <select-form name="recurrence" label="Repetir"
+            .options=${this._recurrenceOptions}
+            @input-change=${this._handleModalInputChange}>
+        </select-form>
 
-            <input-form name="scheduledDates" label="Fecha de inicio" type="date"
-                @input-change=${(e: CustomEvent) => {
-                this._scheduledDates = [e.detail.value];
-                this._formData = { ...this._formData, scheduledDates: [e.detail.value] };
-            }}>
-            </input-form>
-
-            <input-form name="recurrenceEndDate" label="Fecha de fin (opcional)" type="date"
+        ${showInterval ? html`
+            <input-form
+                name="recurrenceInterval"
+                label=${intervalLabel[this._formData.recurrence!]}
+                type="number"
+                .min=${'1'}
+                .max=${'365'}
+                placeholder="1"
                 @input-change=${this._handleModalInputChange}>
             </input-form>
-        `;
+        ` : nothing}
+    `;
     }
 
     private _renderModal() {
@@ -310,6 +348,7 @@ export class TransactionForm extends LitElement {
         this._type = 'TRANSFER';
         this._isScheduled = false;
         this._showModal = false;
+        this._recurrence = null;
         this._scheduledMode = 'dates';
         this._scheduledDates = [];
         this._pendingDate = '';
@@ -318,7 +357,8 @@ export class TransactionForm extends LitElement {
             concept: "", amount: "0.00", originIban: "", destinationIban: "",
             type: "TRANSFER", isScheduled: false,
             scheduledDates: [], scheduledTime: "", targetTimezone: "Europe/Madrid",
-            scheduledMode: 'dates', recurrence: null, recurrenceEndDate: ""
+            scheduledMode: 'dates', recurrence: null, recurrenceEndDate: "",
+            recurrenceInterval: null
         };
         this._formKey++;
         if (this._scheduledCheckbox) this._scheduledCheckbox.checked = false;
