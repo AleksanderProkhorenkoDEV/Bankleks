@@ -274,12 +274,12 @@ export class TransactionForm extends LitElement {
                     <!-- Selector de modo -->
                     <div class="mode-tabs">
                         <button type="button"
-                            class="mode-tab ${this._scheduledMode === 'dates' ? 'active' : ''}"
+                            class="mode-tab ${this._scheduledMode === 'dates' ? 'active' : 'active-secondary'}"
                             @click=${() => this._handleModeChange('dates')}>
-                            Fechas
+                            Programada
                         </button>
                         <button type="button"
-                            class="mode-tab ${this._scheduledMode === 'recurrent' ? 'active' : ''}"
+                            class="mode-tab ${this._scheduledMode === 'recurrent' ? 'active' : 'active-secondary'}"
                             @click=${() => this._handleModeChange('recurrent')}>
                             Recurrente
                         </button>

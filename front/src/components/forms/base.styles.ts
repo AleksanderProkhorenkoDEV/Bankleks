@@ -61,9 +61,15 @@ export const baseStyles = css`
     }
 
     .mode-tab.active {
-        background: var(--color-primary);
+        background: var(--color-tertiary);
         color: white;
-        border-color: var(--color-primary);
+        border-color: var(--color-tertiary);
+    }
+
+    .mode-tab.active-secondary{
+        background: var(--text-primary);
+        color: var(--text-foreground);
+        border-color: var(--color-border);
     }
 
     .date-picker {
