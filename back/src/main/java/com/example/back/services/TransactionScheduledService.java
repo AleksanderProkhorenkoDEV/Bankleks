@@ -40,10 +40,10 @@ public class TransactionScheduledService {
 
     public void createScheduledTransfer(Account accountOrigin, Account accountDestination,
             Double amount, String concept, Instant scheduledAt, String targetTimezone,
-            RecurrenceType recurrence, Instant recurrenceEndDate) {
+            RecurrenceType recurrence, Instant recurrenceEndDate, Integer recurrenceInterval) {
         scheduledTransferRepository.save(
                 new ScheduledTransfer(accountOrigin, accountDestination, amount, concept,
-                        scheduledAt, targetTimezone, recurrence, recurrenceEndDate));
+                        scheduledAt, targetTimezone, recurrence, recurrenceEndDate, recurrenceInterval));
     }
 
     public List<ScheduledTransfer> getPendingTransfers() {
@@ -80,6 +80,10 @@ public class TransactionScheduledService {
         ZonedDateTime current = scheduled.getScheduledAt()
                 .atZone(ZoneId.of(scheduled.getTargetTimezone()));
 
+        int interval = scheduled.getRecurrenceInterval() != null
+                ? scheduled.getRecurrenceInterval()
+                : 1;
+
         return switch (scheduled.getRecurrence()) {
             case BEGINNING_OF_MONTH ->
                 current.plusMonths(1)
@@ -95,6 +99,18 @@ public class TransactionScheduledService {
                 current.plusMonths(1)
                         .with(TemporalAdjusters.lastDayOfMonth())
                         .toInstant();
+
+            case EVERY_X_DAYS ->
+                current.plusDays(interval)
+                        .toInstant();
+
+            case EVERY_X_WEEKS ->
+                current.plusWeeks(interval)
+                        .toInstant();
+
+            case EVERY_X_MONTHS ->
+                current.plusMonths(interval)
+                        .toInstant();
         };
     }
 
@@ -108,7 +124,8 @@ public class TransactionScheduledService {
                 nextExecution,
                 executed.getTargetTimezone(),
                 executed.getRecurrence(),
-                executed.getRecurrenceEndDate()));
+                executed.getRecurrenceEndDate(),
+                executed.getRecurrenceInterval()));
     }
 
     public Page<ScheduledTransfer> getFailedScheduledTransfers(Integer page, Integer size) {
