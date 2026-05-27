@@ -1,7 +1,9 @@
 package com.example.back.services;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -167,8 +169,8 @@ public class TransactionServices {
                 : null;
 
         if (request.getRecurrence() != null) {
-            LocalDateTime startDateTime = LocalDateTime.parse(
-                    request.getScheduledDates().get(0) + "T" + request.getScheduledTime());
+            LocalDate today = LocalDate.now(ZoneId.of(request.getTargetTimezone()));
+            LocalDateTime startDateTime = LocalDateTime.of(today, LocalTime.parse(request.getScheduledTime()));
             Instant scheduledAtUTC = convertToUTC(request.getTargetTimezone(), startDateTime);
 
             validateFutureDate(scheduledAtUTC);
