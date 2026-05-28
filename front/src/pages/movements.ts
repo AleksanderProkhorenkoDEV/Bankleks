@@ -106,6 +106,10 @@ export class MovementsPage extends LitElement {
                                 BEGINNING_OF_MONTH: 'Recurrente (día 1)',
                                 MIDDLE_OF_MONTH: 'Recurrente (día 15)',
                                 END_OF_MONTH: 'Recurrente (fin de mes)',
+                                EVERY_X_DAYS: 'Recurrencía diaria',
+                                EVERY_X_WEEKS: 'Recurrencía semanal',
+                                EVERY_X_MONTHS: 'Recurrencía mensual'
+
                             };
                             return `${direction} ${recurrenceLabel[row.recurrenceType]}`;
                         }
