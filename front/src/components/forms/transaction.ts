@@ -27,6 +27,7 @@ export class TransactionForm extends LitElement {
     @state() private _formKey: number = 0;
     @state() private _recurrence: RecurrenceType | null = null;
 
+
     private _formData: TransactionFormData = {
         concept: "", amount: "0.00", originIban: "", destinationIban: "",
         type: "TRANSFER", isScheduled: false,
@@ -271,8 +272,8 @@ export class TransactionForm extends LitElement {
     }
 
     private _renderRecurrentMode() {
-        const showInterval = this._formData.recurrence != null
-            && this._intervalRecurrenceTypes.has(this._formData.recurrence);
+        const showInterval = this._recurrence != null
+            && this._intervalRecurrenceTypes.has(this._recurrence);
 
         const intervalLabel: Record<string, string> = {
             'EVERY_X_DAYS': 'Repetir cada (días)',
