@@ -24,7 +24,12 @@ const USER_COLUMNS: TableColumn[] = [
             return map[value] ?? value;
         }
     },
-    { key: 'iban', label: 'Iban' },
+    {
+        key: 'iban', label: 'Iban', render: (value) => {
+            if (!value) return '-';
+            return `${value.slice(0, 6)}...${value.slice(-4)}`;
+        }
+    },
     {
         key: 'balance', label: 'Balance',
         render: (value) => {
@@ -128,11 +133,19 @@ export class PanelPage extends LitElement {
             },
             {
                 key: 'accountOrigin', label: 'Origen',
-                render: (value) => value?.accountNumber ?? '-'
+                render: (value) => {
+                    const iban = value?.accountNumber;
+                    if (!iban) return '-';
+                    return `${iban.slice(0, 6)}...${iban.slice(-4)}`;
+                }
             },
             {
                 key: 'accountDestination', label: 'Destino',
-                render: (value) => value?.accountNumber ?? '-'
+                render: (value) => {
+                    const iban = value?.accountNumber;
+                    if (!iban) return '-';
+                    return `${iban.slice(0, 6)}...${iban.slice(-4)}`;
+                }
             },
             {
                 key: 'scheduledAt', label: 'Fecha programada',
