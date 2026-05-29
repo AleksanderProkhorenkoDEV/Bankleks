@@ -57,7 +57,7 @@ public class ScheduledTransferCronTest {
         destination.setId(2L);
 
         scheduledTransfer = new ScheduledTransfer(origin, destination, 100.0, "pago mensual",
-                Instant.now(), "UTC", RecurrenceType.BEGINNING_OF_MONTH, null, null);
+                Instant.now(), "UTC", RecurrenceType.BEGINNING_OF_MONTH, null, null, null);
         scheduledTransfer.setId(1L);
     }
 
@@ -78,7 +78,7 @@ public class ScheduledTransferCronTest {
     @Test
     void shouldProcessAllPendingTransfers() {
         ScheduledTransfer transfer2 = new ScheduledTransfer(origin, destination, 50.0, "otro pago",
-                Instant.now(), "UTC", null, null, null);
+                Instant.now(), "UTC", null, null, null, null);
         transfer2.setId(2L);
 
         Transaction tx1 = mock(Transaction.class);
@@ -171,7 +171,7 @@ public class ScheduledTransferCronTest {
     @Test
     void shouldContinueProcessingOtherTransfersAfterOneFailure() {
         ScheduledTransfer transfer2 = new ScheduledTransfer(origin, destination, 50.0, "pago 2",
-                Instant.now(), "UTC", null, null, null);
+                Instant.now(), "UTC", null, null, null, null);
         transfer2.setId(2L);
 
         Transaction tx2 = mock(Transaction.class);
