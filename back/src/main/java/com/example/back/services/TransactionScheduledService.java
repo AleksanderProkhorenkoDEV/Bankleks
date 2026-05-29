@@ -43,7 +43,7 @@ public class TransactionScheduledService {
             RecurrenceType recurrence, Instant recurrenceEndDate, Integer recurrenceInterval) {
         scheduledTransferRepository.save(
                 new ScheduledTransfer(accountOrigin, accountDestination, amount, concept,
-                        scheduledAt, targetTimezone, recurrence, recurrenceEndDate, recurrenceInterval));
+                        scheduledAt, targetTimezone, recurrence, recurrenceEndDate, recurrenceInterval, recurrenceInterval));
     }
 
     public List<ScheduledTransfer> getPendingTransfers() {
@@ -70,10 +70,16 @@ public class TransactionScheduledService {
     public boolean hasNextRecurrence(ScheduledTransfer scheduled) {
         if (scheduled.getRecurrence() == null)
             return false;
-        if (scheduled.getRecurrenceEndDate() == null)
-            return true;
-        Instant next = calculateNextExecution(scheduled);
-        return next.isBefore(scheduled.getRecurrenceEndDate());
+
+        if (scheduled.getRemainingRecurrences() != null)
+            return scheduled.getRemainingRecurrences() > 0;
+
+        if (scheduled.getRecurrenceEndDate() != null) {
+            Instant next = calculateNextExecution(scheduled);
+            return next.isBefore(scheduled.getRecurrenceEndDate());
+        }
+
+        return true;
     }
 
     public Instant calculateNextExecution(ScheduledTransfer scheduled) {
@@ -116,6 +122,12 @@ public class TransactionScheduledService {
 
     public void scheduleNextRecurrence(ScheduledTransfer executed) {
         Instant nextExecution = calculateNextExecution(executed);
+
+        Integer nextRemaining = null;
+        if (executed.getRemainingRecurrences() != null) {
+            nextRemaining = executed.getRemainingRecurrences() - 1;
+        }
+
         scheduledTransferRepository.save(new ScheduledTransfer(
                 executed.getAccountOrigin(),
                 executed.getAccountDestination(),
@@ -125,7 +137,9 @@ public class TransactionScheduledService {
                 executed.getTargetTimezone(),
                 executed.getRecurrence(),
                 executed.getRecurrenceEndDate(),
-                executed.getRecurrenceInterval()));
+                executed.getRecurrenceInterval(),
+                nextRemaining));
+
         accountService.addReservedBalance(executed.getAccountOrigin(), executed.getAmount());
     }
 

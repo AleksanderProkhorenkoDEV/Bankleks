@@ -66,12 +66,16 @@ public class ScheduledTransfer {
     @Column(nullable = true)
     private Integer recurrenceInterval;
 
+    @Column(nullable = true)
+    private Integer remainingRecurrences;
+
     public ScheduledTransfer() {
     }
 
     public ScheduledTransfer(Account accountOrigin, Account accountDestination,
             Double amount, String concept, Instant scheduledAt, String targetTimezone,
-            RecurrenceType recurrence, Instant recurrenceEndDate, Integer recurrenceInterval) {
+            RecurrenceType recurrence, Instant recurrenceEndDate, Integer recurrenceInterval,
+            Integer remainingRecurrences) {
         this.accountOrigin = accountOrigin;
         this.accountDestination = accountDestination;
         this.amount = amount;
@@ -82,5 +86,6 @@ public class ScheduledTransfer {
         this.recurrence = recurrence;
         this.recurrenceEndDate = recurrenceEndDate;
         this.recurrenceInterval = recurrenceInterval;
+        this.remainingRecurrences = remainingRecurrences;
     }
 }
