@@ -202,7 +202,7 @@ public class TransactionServicesTest {
                 verify(accountService, times(2)).addReservedBalance(origin, 50.0);
                 verify(transactionScheduledService, times(2)).createScheduledTransfer(
                                 eq(origin), eq(destination), eq(50.0), eq("pago"),
-                                any(Instant.class), eq("UTC"), isNull(), isNull(), null);
+                                any(Instant.class), eq("UTC"), isNull(), isNull(), isNull());
         }
 
         @Test
@@ -211,7 +211,7 @@ public class TransactionServicesTest {
 
                 CreateTransactionScheduledRequestDTO request = new CreateTransactionScheduledRequestDTO("suscripción",
                                 50.0,
-                                destination.getAccountNumber(), origin.getAccountNumber(), "UTC", "10:00:00",
+                                destination.getAccountNumber(), origin.getAccountNumber(), "UTC", "23:59:59",
                                 List.of(futureDate),
                                 RecurrenceType.END_OF_MONTH, LocalDateTime.now().plusMonths(3), null);
 
@@ -234,7 +234,7 @@ public class TransactionServicesTest {
                 CreateTransactionScheduledRequestDTO request = new CreateTransactionScheduledRequestDTO(
                                 "suscripción", 50.0,
                                 destination.getAccountNumber(), origin.getAccountNumber(),
-                                "UTC", "10:00:00", List.of(futureDate),
+                                "UTC", "23:59:59", List.of(futureDate),
                                 RecurrenceType.END_OF_MONTH, LocalDateTime.now().plusMonths(3),
                                 (Integer) null);
 
